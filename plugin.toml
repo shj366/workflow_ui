@@ -1,0 +1,6 @@
+[plugin]
+summary = 'workflow审批流UI'
+version = '0.1.0'
+description = '基于 snakerflow-designer-vue 构建的前端审批流引擎，提供可视化流程设计与展示能力'
+author = 'shj366'
+tags = ['审批流', 'workflow']
