@@ -1,5 +1,6 @@
 import { markRaw } from 'vue';
 
+// @ts-ignore - No types available for snakerflow-designer-vue
 import SnakerFlowDesignerModule from 'snakerflow-designer-vue';
 
 import 'snakerflow-designer-vue/element-plus/dist/index.css';
