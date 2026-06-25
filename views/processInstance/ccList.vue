@@ -18,7 +18,6 @@ import { ccQuerySchema, useCcColumns } from './data';
 import HistoryDrawer from './HistoryDrawer.vue';
 
 const historyDrawerRef = ref();
-const gridRef = ref();
 
 const formOptions: VbenFormProps = {
   collapsed: true,
@@ -87,7 +86,7 @@ async function handleDetail(row: ProcessCCInstanceItem) {
 
 <template>
   <Page auto-content-height>
-    <Grid ref="gridRef">
+    <Grid>
       <template #action="{ row }">
         <a style="color: #1677ff; cursor: pointer" @click="handleDetail(row)">
           详情

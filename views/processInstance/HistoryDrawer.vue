@@ -11,13 +11,13 @@ import { useVbenDrawer } from '@vben/common-ui';
 import { IconifyIcon } from '@vben/icons';
 
 import { message } from 'antdv-next';
-import SnakerFlowDesigner from '#/plugins/workflow/components/SnakerFlowDesigner';
 
 import {
   getApprovalRecordApi,
   getHighLightApi,
   getProcessInstanceDetailApi,
 } from '#/plugins/workflow/api/processInstance';
+import SnakerFlowDesigner from '#/plugins/workflow/components/SnakerFlowDesigner';
 
 // 获取 API 基础 URL
 const API_BASE_URL = import.meta.env.VITE_GLOB_API_URL || '';

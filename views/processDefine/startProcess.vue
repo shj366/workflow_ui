@@ -5,10 +5,10 @@ import { useRouter } from 'vue-router';
 import { useVbenDrawer } from '@vben/common-ui';
 
 import { message } from 'antdv-next';
-import SnakerFlowDesigner from '#/plugins/workflow/components/SnakerFlowDesigner';
 
 import { getProcessDefineDetailApi } from '#/plugins/workflow/api/processDefine';
 import { startAndExecuteApi } from '#/plugins/workflow/api/processInstance';
+import SnakerFlowDesigner from '#/plugins/workflow/components/SnakerFlowDesigner';
 
 import { componentMap as wfFormComponentMap } from './componentMap';
 

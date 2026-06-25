@@ -4,19 +4,19 @@ import { ref } from 'vue';
 import { useVbenModal } from '@vben/common-ui';
 
 import { message } from 'antdv-next';
-import SnakerFlowDesigner from '#/plugins/workflow/components/SnakerFlowDesigner';
 
 import {
   getProcessDesignDetailApi,
   saveProcessDesignApi,
 } from '#/plugins/workflow/api/processDesign';
+import SnakerFlowDesigner from '#/plugins/workflow/components/SnakerFlowDesigner';
 
 import { wfFormOptions } from '../processDefine/componentMap';
 import { taskFormOptions } from '../processTask/componentMap';
 import AssigneeInput from './snakerflow/assigneeInput.vue';
 import CandidateGroupsInput from './snakerflow/candidateGroupsInput.vue';
 
-// @ts-ignore
+// @ts-expect-error SnakerFlowDesigner slots are extended locally.
 // 扩展 SnakerFlowDesigner 组件的类型声明
 declare module 'snakerflow-designer-vue' {
   export interface SnakerFlowDesignerSlots {

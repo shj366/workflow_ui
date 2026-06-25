@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+/* oxlint-disable typescript/no-non-null-assertion */
 /**
  * 表单设计器 - 用于设计流程表单
  * 对齐 mldong 实现

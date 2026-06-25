@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+/* oxlint-disable typescript/no-non-null-assertion */
 import { ref } from 'vue';
 
 import { message } from 'antdv-next';

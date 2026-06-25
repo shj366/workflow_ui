@@ -8,7 +8,7 @@ import { reactive, ref } from 'vue';
 
 import { Page } from '@vben/common-ui';
 
-import { message } from 'antdv-next';
+import { message, Modal } from 'antdv-next';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
