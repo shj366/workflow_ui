@@ -23,8 +23,8 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
-import FlowDesigner from 'mldong-flow-designer-dingtalk'
-import 'mldong-flow-designer-dingtalk/lib/style.css'
+import FlowDesigner from 'mldong-flow-designer-plus'
+import 'mldong-flow-designer-plus/lib/style.css'
 import type { FlowGraph, HighLightData, AssigneeTextRow } from '../types'
 
 defineOptions({ name: 'JfFlowViewer' })

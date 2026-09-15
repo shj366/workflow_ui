@@ -81,8 +81,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import FlowDesigner from 'mldong-flow-designer-dingtalk'
-import 'mldong-flow-designer-dingtalk/lib/style.css'
+import FlowDesigner from 'mldong-flow-designer-plus'
+import 'mldong-flow-designer-plus/lib/style.css'
 import JfBadge from '../ui/JfBadge.vue'
 import JfIcon from '../ui/JfIcon.vue'
 import { useJeeflowUi } from '../provider'
