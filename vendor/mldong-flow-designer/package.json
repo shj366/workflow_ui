@@ -40,7 +40,8 @@
   },
   "files": [
     "lib",
-    "packages"
+    "packages",
+    "postinstall.mjs"
   ],
   "author": "mldong",
   "license": "Apache License 2.0",
