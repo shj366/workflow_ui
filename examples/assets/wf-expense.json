@@ -1,0 +1,105 @@
+{
+  "name": "wf-expense",
+  "displayName": "报销流程",
+  "instanceUrl": "expenseForm",
+  "nodes": [
+    {
+      "id": "start",
+      "type": "snaker:start",
+      "x": 280,
+      "y": 320,
+      "properties": { "width": 120, "height": 80 },
+      "text": { "x": 280, "y": 360, "value": "开始" }
+    },
+    {
+      "id": "apply",
+      "type": "snaker:task",
+      "x": 480,
+      "y": 320,
+      "properties": {
+        "width": 120, "height": 80,
+        "assignee": "apply.operator",
+        "taskType": "Major",
+        "performType": "ANY",
+        "autoExecute": "N"
+      },
+      "text": { "x": 480, "y": 320, "value": "报销申请" }
+    },
+    {
+      "id": "d1",
+      "type": "snaker:decision",
+      "x": 680,
+      "y": 320,
+      "properties": { "width": 120, "height": 80 }
+    },
+    {
+      "id": "approveDept",
+      "type": "snaker:task",
+      "x": 880,
+      "y": 500,
+      "properties": {
+        "width": 120, "height": 80,
+        "assignmentHandler": "com.mldong.config.DeptAssignmentHandler",
+        "taskType": "Major",
+        "performType": "ANY",
+        "autoExecute": "N"
+      },
+      "text": { "x": 880, "y": 500, "value": "部门领导审批" }
+    },
+    {
+      "id": "approveBoss",
+      "type": "snaker:task",
+      "x": 1080,
+      "y": 500,
+      "properties": {
+        "width": 120, "height": 80,
+        "assignmentHandler": "com.mldong.config.BossAssignmentHandler",
+        "taskType": "Major",
+        "performType": "ANY",
+        "autoExecute": "N"
+      },
+      "text": { "x": 1080, "y": 500, "value": "公司领导审批" }
+    },
+    {
+      "id": "approveFinance",
+      "type": "snaker:task",
+      "x": 1280,
+      "y": 500,
+      "properties": {
+        "width": 120, "height": 80,
+        "assignmentHandler": "com.mldong.config.FinanceAssignmentHandler",
+        "taskType": "Major",
+        "performType": "ANY",
+        "autoExecute": "N"
+      },
+      "text": { "x": 1280, "y": 500, "value": "财务审批" }
+    },
+    {
+      "id": "end",
+      "type": "snaker:end",
+      "x": 1480,
+      "y": 320,
+      "properties": { "width": 120, "height": 80 },
+      "text": { "x": 1480, "y": 360, "value": "结束" }
+    }
+  ],
+  "edges": [
+    { "id": "t1", "type": "snaker:transition", "sourceNodeId": "start", "targetNodeId": "apply", "properties": {} },
+    { "id": "t2", "type": "snaker:transition", "sourceNodeId": "apply", "targetNodeId": "d1", "properties": {} },
+    {
+      "id": "t3", "type": "snaker:transition",
+      "sourceNodeId": "d1", "targetNodeId": "end",
+      "properties": { "expr": "#f_amount<1000" },
+      "text": { "value": "金额小于1000" }
+    },
+    {
+      "id": "t4", "type": "snaker:transition",
+      "sourceNodeId": "d1", "targetNodeId": "approveDept",
+      "properties": { "expr": "#f_amount>=1000" },
+      "text": { "value": "金额大于等于1000" }
+    },
+    { "id": "t5", "type": "snaker:transition", "sourceNodeId": "approveDept", "targetNodeId": "approveBoss", "properties": {} },
+    { "id": "t6", "type": "snaker:transition", "sourceNodeId": "approveBoss", "targetNodeId": "approveFinance", "properties": {} },
+    { "id": "t7", "type": "snaker:transition", "sourceNodeId": "approveFinance", "targetNodeId": "end", "properties": {} }
+  ]
+}
