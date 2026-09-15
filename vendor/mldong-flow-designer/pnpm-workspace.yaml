@@ -1,0 +1,4 @@
+allowBuilds:
+  '@logicflow/core': true
+  '@logicflow/extension': true
+  '@logicflow/layout': true

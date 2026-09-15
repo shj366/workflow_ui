@@ -1,0 +1,3 @@
+[submodule ".agent-rules"]
+	path = .agent-rules
+	url = git@codeup.aliyun.com:5f312ff4df9df74e36afcfee/opensource/mldong-agents.git
