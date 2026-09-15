@@ -5,7 +5,7 @@
   "type": "module",
   "dependencies": {
     "@mldong/jeeflow-ui": "file:vendor/jeeflow-ui/packages/ui-kit",
-    "mldong-flow-designer-plus": "^3.1.1",
+    "mldong-flow-designer-plus": "git+https://gitee.com/mldong/flow-designer.git#7765c19918af6508447f0b302cb963d3d023a6da",
     "zod": "catalog:"
   }
 }
