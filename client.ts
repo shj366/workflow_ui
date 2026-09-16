@@ -29,6 +29,8 @@ const workflowPermissionMap: Record<string, string[]> = {
   'wf:processInstance:ccList': ['workflow:instance:cc:view'],
 };
 
+const apiBaseUrl = `${(import.meta.env.VITE_GLOB_API_URL || '').replace(/\/+$/, '')}/api/v1`;
+
 const UserRecordSchema = z.object({
   id: z.union([z.string(), z.number()]),
   username: z.string().optional(),
@@ -58,7 +60,7 @@ export function useJeeflowUiClient(): JeeflowUiContext {
   const { hasAccessByCodes } = useAccess();
 
   context = createJeeflowUi({
-    baseUrl: '/api/v1',
+    baseUrl: apiBaseUrl,
     getToken: () => accessStore.accessToken || null,
     getOperator: () => String(userStore.userInfo?.id ?? ''),
     hasPermission: (codes: string[]) => {
