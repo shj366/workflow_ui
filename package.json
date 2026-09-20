@@ -2,10 +2,5 @@
   "name": "@fba-ui/workflow",
   "version": "0.2.0",
   "private": true,
-  "type": "module",
-  "dependencies": {
-    "@mldong/jeeflow-ui": "file:vendor/jeeflow-ui/packages/ui-kit",
-    "mldong-flow-designer-plus": "^3.1.1",
-    "zod": "catalog:"
-  }
+  "type": "module"
 }

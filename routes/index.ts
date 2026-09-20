@@ -51,6 +51,12 @@ const routes: RouteRecordRaw[] = [
     component,
     meta: { icon: 'ant-design:mail-outlined', title: '抄送给我' },
   },
+  {
+    name: 'ProcessSurrogate',
+    path: '/plugins/workflow/processSurrogate',
+    component,
+    meta: { icon: 'ant-design:swap-outlined', title: '我的委托' },
+  },
 ];
 
 export default routes;

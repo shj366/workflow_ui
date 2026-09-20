@@ -1,50 +1,80 @@
 <script setup lang="ts">
-import { computed, provide, ref } from 'vue';
+import type { Component } from 'vue';
+
+import { computed, provide } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 import {
   JfApplyListPage,
   JfCcListPage,
   JfDonePage,
-  JfLayout,
   JfMyInstancePage,
   JfProcessDefinePage,
-  JfProcessDesignPage,
   JfSurrogatePage,
   JfTodoPage,
   JfWorkbenchPage,
   JeeflowUiKey,
-} from '@mldong/jeeflow-ui';
-import type { JfMenuItem } from '@mldong/jeeflow-ui';
-
+} from '../../assets/jeeflow-ui/jeeflow-ui.js';
+import ProcessDesignSwitchable from './ProcessDesignSwitchable.vue';
 import { useJeeflowUiClient } from '../../client';
 
-const menus: JfMenuItem[] = [
-  { key: 'workbench', title: '工作台', icon: 'home', component: JfWorkbenchPage },
-  { key: 'apply', title: '发起申请', icon: 'apply', component: JfApplyListPage, perms: ['wf:processDesign:listByType'] },
-  { key: 'todo', title: '我的待办', icon: 'todo', component: JfTodoPage, perms: ['wf:processTask:todoList'] },
-  { key: 'done', title: '我的已办', icon: 'done', component: JfDonePage, perms: ['wf:processTask:doneList'] },
-  { key: 'mine', title: '我发起的', icon: 'mine', component: JfMyInstancePage, perms: ['wf:processInstance:page'] },
-  { key: 'cc', title: '我的抄送', icon: 'cc', component: JfCcListPage, perms: ['wf:processInstance:ccList'] },
-  { key: 'define', title: '流程定义', icon: 'define', component: JfProcessDefinePage, perms: ['wf:processDefine:page'] },
-  { key: 'design', title: '流程设计', icon: 'design', component: JfProcessDesignPage, perms: ['wf:processDesign:page'] },
-  { key: 'surrogate', title: '我的委托', icon: 'surrogate', component: JfSurrogatePage, perms: ['wf:processSurrogate:page'] },
-];
-
+const route = useRoute();
+const router = useRouter();
 const jeeflowUi = useJeeflowUiClient();
 provide(JeeflowUiKey, jeeflowUi);
 
-const currentKey = ref('workbench');
-const currentComponent = computed(() =>
-  menus.find((menu) => menu.key === currentKey.value)?.component ?? JfWorkbenchPage,
+const pageByPath: Record<string, Component> = {
+  '/workflow/center': JfWorkbenchPage,
+  '/workflow/processInstance/applyList': JfApplyListPage,
+  '/workflow/processTask/todo': JfTodoPage,
+  '/workflow/processTask/done': JfDonePage,
+  '/workflow/processInstance/my': JfMyInstancePage,
+  '/workflow/processInstance/cc': JfCcListPage,
+  '/workflow/processDesign': ProcessDesignSwitchable,
+  '/workflow/processDefine': JfProcessDefinePage,
+  '/workflow/processSurrogate': JfSurrogatePage,
+};
+
+const workflowPath = computed(() => route.path.replace(/^\/plugins(?=\/workflow\/)/, ''));
+const currentComponent = computed(() => pageByPath[workflowPath.value] ?? JfWorkbenchPage);
+
+const workflowPrefix = computed(() =>
+  route.path.startsWith('/plugins/workflow/') ? '/plugins/workflow' : '/workflow',
 );
 
-function onSelect(key: string) {
-  if (menus.some((menu) => menu.key === key)) currentKey.value = key;
+const routeByKey: Record<string, string> = {
+  workbench: '/center',
+  apply: '/processInstance/applyList',
+  todo: '/processTask/todo',
+  done: '/processTask/done',
+  mine: '/processInstance/my',
+  cc: '/processInstance/cc',
+  define: '/processDefine',
+  design: '/processDesign',
+  surrogate: '/processSurrogate',
+};
+
+function onGoto(key: string) {
+  const suffix = routeByKey[key];
+  if (!suffix) return;
+  const path = `${workflowPrefix.value}${suffix}`;
+  if (path !== route.path) router.push(path);
 }
 </script>
 
 <template>
-  <JfLayout :menus="menus" title="流程中心" :default-key="currentKey" @select="onSelect">
-    <component :is="currentComponent" :key="currentKey" @goto="onSelect" />
-  </JfLayout>
+  <div class="jeeflow-page-host">
+    <component :is="currentComponent" :key="route.path" @goto="onGoto" />
+  </div>
 </template>
+
+<style scoped>
+.jeeflow-page-host {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+}
+</style>
