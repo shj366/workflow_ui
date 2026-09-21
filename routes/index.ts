@@ -1,61 +1,42 @@
 import type { RouteRecordRaw } from 'vue-router';
 
-const component = () => import('../views/jeeflowCenter/index.vue');
-
 const routes: RouteRecordRaw[] = [
   {
     name: 'PluginWfCenter',
     path: '/plugins/workflow/center',
-    component,
-    meta: { icon: 'ant-design:appstore-outlined', title: '工作中心', order: 1 },
+    component: () => import('../views/workflowCenter/index.vue'),
+    meta: {
+      icon: 'ant-design:appstore-outlined',
+      title: '工作中心',
+      order: 1,
+    },
   },
   {
     name: 'PluginWfApplyList',
     path: '/plugins/workflow/processInstance/applyList',
-    component,
-    meta: { icon: 'ant-design:form-outlined', title: '发起申请' },
+    component: () => import('../views/processInstance/applyList.vue'),
+    meta: {
+      icon: 'ant-design:form-outlined',
+      title: '发起申请',
+    },
   },
   {
     name: 'PluginWfProcessDesign',
     path: '/plugins/workflow/processDesign',
-    component,
-    meta: { icon: 'ant-design:cluster-outlined', title: '流程设计' },
+    component: () => import('../views/processDesign/index.vue'),
+    meta: {
+      icon: 'ant-design:cluster-outlined',
+      title: '流程设计',
+    },
   },
   {
     name: 'PluginWfProcessDefine',
     path: '/plugins/workflow/processDefine',
-    component,
-    meta: { icon: 'ant-design:setting-outlined', title: '流程定义' },
-  },
-  {
-    name: 'ProcessTaskTodo',
-    path: '/plugins/workflow/processTask/todo',
-    component,
-    meta: { icon: 'ant-design:profile-outlined', title: '待办任务' },
-  },
-  {
-    name: 'ProcessTaskDone',
-    path: '/plugins/workflow/processTask/done',
-    component,
-    meta: { icon: 'ant-design:check-circle-outlined', title: '已办任务' },
-  },
-  {
-    name: 'ProcessInstanceMy',
-    path: '/plugins/workflow/processInstance/my',
-    component,
-    meta: { icon: 'ant-design:user-switch-outlined', title: '我的流程' },
-  },
-  {
-    name: 'ProcessInstanceCc',
-    path: '/plugins/workflow/processInstance/cc',
-    component,
-    meta: { icon: 'ant-design:mail-outlined', title: '抄送给我' },
-  },
-  {
-    name: 'ProcessSurrogate',
-    path: '/plugins/workflow/processSurrogate',
-    component,
-    meta: { icon: 'ant-design:swap-outlined', title: '我的委托' },
+    component: () => import('../views/processDefine/index.vue'),
+    meta: {
+      icon: 'ant-design:setting-outlined',
+      title: '流程定义',
+    },
   },
 ];
 
