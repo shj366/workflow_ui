@@ -21,6 +21,15 @@ export const querySchema: VbenFormSchema[] = [
     },
   },
   {
+    component: 'Input',
+    fieldName: 'type',
+    label: '类型',
+    componentProps: {
+      allowClear: true,
+      placeholder: '请输入流程类型',
+    },
+  },
+  {
     component: 'Select',
     fieldName: 'state',
     label: '状态',

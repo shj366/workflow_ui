@@ -18,6 +18,14 @@ export const querySchema: VbenFormSchema[] = [
       placeholder: '请输入显示名称',
     },
   },
+  {
+    fieldName: 'type',
+    label: '流程类型',
+    component: 'Input',
+    componentProps: {
+      placeholder: '请输入流程类型',
+    },
+  },
 ];
 
 export function useColumns(): VxeGridPropTypes.Columns {
@@ -89,12 +97,10 @@ export const formSchema: VbenFormSchema[] = [
   {
     fieldName: 'type',
     label: '流程类型',
-    component: 'InputNumber',
+    component: 'Input',
     componentProps: {
-      min: 0,
-      precision: 0,
-      placeholder: '请输入整数类型值',
-    }
+      placeholder: '请输入流程类型',
+    },
   },
   {
     fieldName: 'icon',

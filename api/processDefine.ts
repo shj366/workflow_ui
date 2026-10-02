@@ -5,7 +5,7 @@ export interface ProcessDefinePageQuery {
   size: number;
   name?: string;
   displayName?: string;
-  type?: number;
+  type?: string;
   state?: number;
 }
 
@@ -14,7 +14,7 @@ export interface ProcessDefineItem {
   name: string;
   displayName?: string;
   display_name?: string;
-  type?: number;
+  type?: string;
   state?: number;
   version?: number;
   content?: string; // base64 or string

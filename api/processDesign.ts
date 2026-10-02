@@ -5,7 +5,7 @@ export interface ProcessDesignItem {
   name: string;
   displayName?: string;
   display_name?: string; // fallback for legacy snake_case usage
-  type?: number;
+  type?: string;
   icon?: string;
   is_deployed: number;
   isDeployed?: number;
@@ -21,7 +21,7 @@ export interface ProcessDesignItem {
 export interface ProcessDesignCreate {
   name: string;
   display_name?: string;
-  type?: number;
+  type?: string;
   icon?: string;
   remark?: string;
 }
@@ -29,7 +29,7 @@ export interface ProcessDesignCreate {
 export interface ProcessDesignUpdate {
   name?: string;
   display_name?: string;
-  type?: number;
+  type?: string;
   icon?: string;
   remark?: string;
 }
@@ -112,7 +112,7 @@ export async function redeployProcessDesignApi(id: string) {
 }
 
 export interface ProcessDesignTypeGroup {
-  type: number;
+  type: string;
   title: string;
   items: {
     displayName: string;
@@ -120,7 +120,7 @@ export interface ProcessDesignTypeGroup {
     id: string;
     name: string;
     processDefineId: string;
-    type: number;
+    type: string;
     version: number;
   }[];
 }

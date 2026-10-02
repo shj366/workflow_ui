@@ -41,7 +41,7 @@ function cloneDefaultFlow() {
 }
 function normalizeDesignerGraph(
   jsonObject: Record<string, any> | undefined,
-  data: { name?: string; displayName?: string; type?: string | number },
+  data: { name?: string; displayName?: string; type?: string },
 ) {
   const graph = jsonObject && Array.isArray(jsonObject.nodes) && Array.isArray(jsonObject.edges)
     ? jsonObject
@@ -64,12 +64,15 @@ function normalizeDesignerGraph(
       },
     };
   });
+  const graphType = graph.type == null || graph.type === ''
+    ? data.type || 'approval'
+    : String(graph.type).trim();
   return {
     ...graph,
     nodes,
     name: graph.name || data.name || '',
     displayName: graph.displayName || data.displayName || '',
-    type: graph.type || data.type || 'approval',
+    type: graphType,
   };
 }
 const recordId = ref<number>(0);
