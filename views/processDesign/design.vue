@@ -43,9 +43,10 @@ function normalizeDesignerGraph(
   jsonObject: Record<string, any> | undefined,
   data: { name?: string; displayName?: string; type?: string },
 ) {
-  const graph = jsonObject && Array.isArray(jsonObject.nodes) && Array.isArray(jsonObject.edges)
-    ? jsonObject
-    : cloneDefaultFlow();
+  const hasGraph = Boolean(
+    jsonObject && Array.isArray(jsonObject.nodes) && Array.isArray(jsonObject.edges),
+  );
+  const graph = hasGraph ? jsonObject! : cloneDefaultFlow();
   const nodes = (graph.nodes || []).map((node: any) => {
     if (!String(node.type || '').endsWith('task')) return node;
     const properties = node.properties || {};
@@ -64,9 +65,11 @@ function normalizeDesignerGraph(
       },
     };
   });
-  const graphType = graph.type == null || graph.type === ''
-    ? data.type || 'approval'
-    : String(graph.type).trim();
+  const graphType = hasGraph && graph.type != null && graph.type !== ''
+    ? String(graph.type).trim()
+    : data.type != null && data.type !== ''
+      ? String(data.type).trim()
+      : 'approval';
   return {
     ...graph,
     nodes,

@@ -83,7 +83,7 @@ const columns: VxeGridProps['columns'] = [
     width: 180,
     sortable: true,
     formatter: ({ row }) => {
-      const v = row.created_time as string | undefined;
+      const v = (row.created_time ?? row.createdTime) as string | undefined;
       if (!v) return '';
       const s = v.replace('T', ' ');
       return s.length > 19 ? s.slice(0, 19) : s;
