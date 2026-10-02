@@ -106,14 +106,6 @@ export const formSchema: VbenFormSchema[] = [
     component: 'IconPicker',
   },
   {
-    fieldName: 'icon',
-    label: '图标',
-    component: 'Input',
-    componentProps: {
-      placeholder: '请输入图标',
-    },
-  },
-  {
     fieldName: 'remark',
     label: '备注',
     component: 'Textarea',

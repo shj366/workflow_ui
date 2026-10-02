@@ -229,7 +229,7 @@ function getMoreMenuItems(row: ProcessDesignItem) {
     {
       key: 'redeploy',
       label: '重新部署',
-      disabled: row.isDeployed === 1,
+      disabled: row.isDeployed !== 1,
     },
     {
       key: 'delete',

@@ -45,7 +45,7 @@ onMounted(async () => {
             <div class="process-item" @click="handleClick(item)">
               <div class="process-icon">
                 <IconifyIcon
-                  icon="ant-design:file-text-outlined"
+                  :icon="item.icon || 'ant-design:file-text-outlined'"
                   class="text-3xl text-blue-500"
                 />
               </div>
