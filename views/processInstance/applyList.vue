@@ -21,7 +21,18 @@ const handleClick = (item: ProcessDesignTypeGroup['items'][number]) => {
 onMounted(async () => {
   try {
     const data = await listProcessDesignByTypeApi();
-    dataSource.value = data || [];
+    dataSource.value = (data || []).map((group) => {
+      const type = String(group.type ?? '').trim();
+      return {
+        ...group,
+        type,
+        title: type || group.title || '默认分类',
+        items: group.items.map((item) => ({
+          ...item,
+          type: String(item.type ?? type).trim(),
+        })),
+      };
+    });
   } catch (error) {
     console.error(error);
   }

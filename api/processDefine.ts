@@ -23,6 +23,8 @@ export interface ProcessDefineItem {
   updatedTime?: string;
   created_by?: string;
   updated_by?: string;
+  children?: ProcessDefineItem[];
+  isVersionGroup?: boolean;
 }
 
 export interface ProcessDefinePageResult {

@@ -2,7 +2,10 @@
 import type { VbenFormProps } from '@vben/common-ui';
 import type { VxeTableGridOptions } from '@vben/plugins/vxe-table';
 
-import type { ProcessDefineItem } from '#/plugins/workflow/api/processDefine';
+import type {
+  ProcessDefineItem,
+  ProcessDefinePageResult,
+} from '#/plugins/workflow/api/processDefine';
 
 import { reactive, ref } from 'vue';
 
@@ -20,6 +23,29 @@ import StartProcess from './startProcess.vue';
 
 const viewerRef = ref();
 const startProcessRef = ref();
+function buildVersionTree(items: ProcessDefineItem[]): ProcessDefineItem[] {
+  const groups = new Map<string, ProcessDefineItem>();
+  for (const item of items) {
+    const key = item.name || String(item.id);
+    let group = groups.get(key);
+    if (!group) {
+      group = {
+        ...item,
+        id: `group:${key}`,
+        isVersionGroup: true,
+        children: [],
+      };
+      groups.set(key, group);
+    }
+    group.children?.push({ ...item, isVersionGroup: false, children: undefined });
+  }
+  return [...groups.values()].map((group) => ({
+    ...group,
+    children: [...(group.children || [])].sort(
+      (left, right) => (right.version || 0) - (left.version || 0),
+    ),
+  }));
+}
 
 const formOptions: VbenFormProps = {
   collapsed: true,
@@ -33,6 +59,12 @@ const formOptions: VbenFormProps = {
 const gridOptions = reactive<VxeTableGridOptions<ProcessDefineItem>>({
   rowConfig: {
     keyField: 'id',
+  },
+  treeConfig: {
+    childrenField: 'children',
+    expandAll: true,
+    reserve: true,
+    showLine: true,
   },
   checkboxConfig: {
     highlight: true,
@@ -54,11 +86,15 @@ const gridOptions = reactive<VxeTableGridOptions<ProcessDefineItem>>({
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues) => {
-        return await fetchProcessDefinePageApi({
+        const result = await fetchProcessDefinePageApi({
           page: page.currentPage,
           size: page.pageSize,
           ...formValues,
         });
+        return {
+          ...result,
+          items: buildVersionTree(result.items),
+        } satisfies ProcessDefinePageResult;
       },
     },
   },
@@ -138,20 +174,25 @@ function handleMoreAction(key: string, row: ProcessDefineItem) {
   <Page auto-content-height>
     <Grid>
       <template #action="{ row }">
-        <a
-          style="margin-right: 8px; color: #1677ff; cursor: pointer"
-          @click="handleView(row)"
-        >
-          查看
-        </a>
-        <a-dropdown
-          :menu="{
-            items: getMoreMenuItems(row),
-            onClick: ({ key }) => handleMoreAction(key as string, row),
-          }"
-        >
-          <a style="color: #1677ff; cursor: pointer" @click.prevent> 更多 </a>
-        </a-dropdown>
+        <template v-if="row.isVersionGroup">
+          <span class="text-gray-500">{{ row.children?.length || 0 }} 个版本</span>
+        </template>
+        <template v-else>
+          <a
+            style="margin-right: 8px; color: #1677ff; cursor: pointer"
+            @click="handleView(row)"
+          >
+            查看
+          </a>
+          <a-dropdown
+            :menu="{
+              items: getMoreMenuItems(row),
+              onClick: ({ key }) => handleMoreAction(key as string, row),
+            }"
+          >
+            <a style="color: #1677ff; cursor: pointer" @click.prevent> 更多 </a>
+          </a-dropdown>
+        </template>
       </template>
     </Grid>
 
