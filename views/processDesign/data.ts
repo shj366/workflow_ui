@@ -101,12 +101,9 @@ export const formSchema: VbenFormSchema[] = [
     },
   },
   {
-    fieldName: 'type',
-    label: '流程类型',
-    component: 'Input',
-    componentProps: {
-      placeholder: '请输入流程类型',
-    },
+    fieldName: 'icon',
+    label: '图标',
+    component: 'IconPicker',
   },
   {
     fieldName: 'icon',
