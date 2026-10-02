@@ -23,6 +23,7 @@ import {
   redeployProcessDesignApi,
   updateProcessDesignApi,
 } from '#/plugins/workflow/api/processDesign';
+import { upAndDownProcessDefineApi } from '#/plugins/workflow/api/processDefine';
 
 import { formSchema, querySchema, useColumns } from './data';
 import ProcessDesigner from './design.vue';
@@ -223,6 +224,30 @@ function handleSuccess() {
   gridApi.reload();
 }
 
+async function handleVersionState(row: ProcessDesignItem) {
+  const nextState = row.state === 1 ? 0 : 1;
+  const actionText = nextState === 1 ? '启用' : '禁用';
+  try {
+    await upAndDownProcessDefineApi({
+      ids: [String(row.id)],
+      opType: nextState,
+    });
+    message.success(`${actionText}成功`);
+    gridApi.reload();
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+function getVersionMenuItems(row: ProcessDesignItem) {
+  return [
+    {
+      key: row.state === 1 ? 'disable' : 'enable',
+      label: row.state === 1 ? '禁用' : '启用',
+    },
+  ];
+}
+
 function getMoreMenuItems(row: ProcessDesignItem) {
   return [
     { key: 'edit', label: '编辑' },
@@ -287,7 +312,15 @@ function handleMoreAction(key: string, row: ProcessDesignItem) {
 
       <template #action="{ row }">
         <template v-if="row.isVersion">
-          <span class="text-gray-500">版本 v{{ row.version }}</span>
+          <span style="margin-right: 8px" class="text-gray-500">版本 v{{ row.version }}</span>
+          <a-dropdown
+            :menu="{
+              items: getVersionMenuItems(row),
+              onClick: () => handleVersionState(row),
+            }"
+          >
+            <a style="color: #1677ff; cursor: pointer" @click.prevent> 操作 </a>
+          </a-dropdown>
         </template>
         <template v-else>
           <a
