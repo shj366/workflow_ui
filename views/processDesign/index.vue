@@ -88,6 +88,13 @@ const [Grid, gridApi] = useVbenVxeGrid({
   formOptions,
   gridOptions,
 });
+function expandAll() {
+  gridApi.grid?.setAllTreeExpand(true);
+}
+
+function collapseAll() {
+  gridApi.grid?.setAllTreeExpand(false);
+}
 
 const [Form, formApi] = useVbenForm({
   schema: formSchema,
@@ -300,6 +307,10 @@ function handleMoreAction(key: string, row: ProcessDesignItem) {
     <Grid>
       <template #toolbar-actions>
         <a-button type="primary" @click="handleAdd"> 新增 </a-button>
+      </template>
+      <template #toolbar-tools>
+        <a-button class="mr-2" @click="expandAll">展开全部</a-button>
+        <a-button @click="collapseAll">折叠全部</a-button>
       </template>
 
       <template #isDeployed="{ row }">
