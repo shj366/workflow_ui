@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { FormInstance } from 'antdv-next';
 
-import { reactive, ref } from 'vue';
+import { computed, reactive, ref } from 'vue';
 
 import { message } from 'antdv-next';
 
@@ -19,6 +19,12 @@ const confirmLoading = ref(false);
 const loadingNodes = ref(false);
 const currentTask = ref<any>(null);
 const nodeList = ref<Array<{ nodeId: string; nodeName: string }>>([]);
+const nodeOptions = computed(() =>
+  nodeList.value.map((item) => ({
+    label: item.nodeName,
+    value: item.nodeId,
+  })),
+);
 const formRef = ref<FormInstance>();
 
 const formState = reactive({
@@ -43,7 +49,10 @@ async function open(record: any) {
   loadingNodes.value = true;
   try {
     const data = await getJumpAbleTaskNameListApi(record.id);
-    nodeList.value = data || [];
+    nodeList.value = (Array.isArray(data) ? data : []).map((item: any) => ({
+      nodeId: item.nodeId ?? item.node_id,
+      nodeName: item.nodeName ?? item.node_name,
+    }));
   } catch {
     nodeList.value = [];
   } finally {
@@ -109,15 +118,10 @@ defineExpose({
           placeholder="请选择目标节点"
           allow-clear
           :loading="loadingNodes"
-        >
-          <a-select-option
-            v-for="item in nodeList"
-            :key="item.nodeId"
-            :value="item.nodeId"
-          >
-            {{ item.nodeName }}
-          </a-select-option>
-        </a-select>
+          :options="nodeOptions"
+          show-search
+          option-filter-prop="label"
+        />
       </a-form-item>
     </a-form>
   </a-modal>

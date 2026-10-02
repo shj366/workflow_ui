@@ -1,11 +1,8 @@
 <script lang="ts" setup>
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 
-import { Select } from 'antdv-next';
-
-import { getSysUserInfoApi, getSysUserListApi } from '#/api/core/user';
-
-type UserOption = { label: string; value: string };
+import { fetchUserListApi } from '#/plugins/workflow/api/processInstance';
+import { buildWorkflowUserTree } from '#/plugins/workflow/utils/userTree';
 
 const props = defineProps<{ value?: string }>();
 const emit = defineEmits<{
@@ -13,107 +10,79 @@ const emit = defineEmits<{
   (event: 'setAssigneeText', value: string): void;
 }>();
 
-const keyword = ref('');
-const options = ref<UserOption[]>([{ label: '发起人', value: 'applicant' }]);
-const selected = ref<UserOption[]>([]);
 const loading = ref(false);
-let timer: number | undefined;
-let requestId = 0;
-let selectedRequestId = 0;
+const users = ref<Awaited<ReturnType<typeof fetchUserListApi>>>([]);
+const selected = ref<string[]>([]);
 
-function parseUsers(value: unknown): UserOption[] {
-  if (!value || typeof value !== 'object') return [];
-  if (Array.isArray(value)) return value.flatMap(parseUsers);
-  const source = value as { data?: unknown; items?: unknown[]; rows?: unknown[]; list?: unknown[]; id?: unknown };
-  if (source.data !== undefined) return parseUsers(source.data);
-  const rows = source.items ?? source.rows ?? source.list;
-  if (Array.isArray(rows)) return rows.flatMap(parseUsers);
-  if (source.id === undefined) return [];
-  const user = value as { id: unknown; nickname?: unknown; username?: unknown; dept?: { name?: unknown }; dept_name?: unknown };
-  const name = String(user.nickname || user.username || user.id);
-  const department = String(user.dept?.name || user.dept_name || '未分配部门');
-  return [{ label: `${name}（${department}）`, value: String(user.id) }];
+const treeData = computed(() => [
+  {
+    key: 'user:applicant',
+    value: 'applicant',
+    title: '发起人',
+    isLeaf: true,
+  },
+  ...buildWorkflowUserTree(users.value),
+]);
+
+function valueTokens(value?: string) {
+  return String(value || '')
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
 }
 
-function unique(values: UserOption[]) {
-  return [...new Map(values.map((value) => [value.value, value])).values()];
+function normalizeSelectedValues(value?: string) {
+  const usersById = new Map(users.value.map((user) => [user.id, user.username]));
+  return valueTokens(value).map((item) => usersById.get(item) || item);
 }
 
-function ids(value?: string) {
-  return value?.split(',').map((item) => item.trim()).filter(Boolean) ?? [];
-}
-
-async function loadSelected(value?: string) {
-  const currentRequestId = ++selectedRequestId;
-  const loaded = await Promise.all(ids(value).map(async (id) => {
-    if (id === 'applicant') return { label: '发起人', value: id };
-    const existing = options.value.find((option) => option.value === id);
-    if (existing) return existing;
-    const numericId = Number(id);
-    if (!Number.isFinite(numericId)) return { label: id, value: id };
-    try {
-      return parseUsers(await getSysUserInfoApi(numericId))[0] ?? { label: id, value: id };
-    } catch {
-      return { label: id, value: id };
-    }
-  }));
-  if (currentRequestId === selectedRequestId) {
-    selected.value = loaded;
-    options.value = unique([{ label: '发起人', value: 'applicant' }, ...loaded, ...options.value]);
-  }
-}
-
-async function search() {
-  const currentRequestId = ++requestId;
-  loading.value = true;
-  try {
-    const result = await getSysUserListApi({ keyword: keyword.value.trim() || undefined, page: 1, size: 200, status: 1 });
-    if (currentRequestId === requestId) options.value = unique([{ label: '发起人', value: 'applicant' }, ...selected.value, ...parseUsers(result)]);
-  } finally {
-    if (currentRequestId === requestId) loading.value = false;
-  }
+function selectedLabels(values: string[]) {
+  const labels = new Map(users.value.map((user) => [user.username, user.nickname || user.username]));
+  return values.map((value) => value === 'applicant' ? '发起人' : labels.get(value) || value);
 }
 
 function update(value: unknown) {
-  if (!Array.isArray(value)) throw new TypeError('参与人选择值必须是用户 ID 列表');
-  const next = value.map((item) => {
-    const raw: { value?: unknown; label?: unknown } = item && typeof item === 'object'
-      ? item as { value?: unknown; label?: unknown }
-      : { value: item };
-    const id = String(raw.value ?? '');
-    return options.value.find((option) => option.value === id) ?? { label: String(raw.label ?? id), value: id };
-  }).filter((item) => item.value);
-  selected.value = next;
-  options.value = unique([{ label: '发起人', value: 'applicant' }, ...next, ...options.value]);
-  const idsValue = next.map((item) => item.value).join(',');
-  emit('update:value', idsValue);
-  emit('setAssigneeText', next.map((item) => item.label).join(','));
+  if (!Array.isArray(value)) {
+    throw new TypeError('参与人选择值必须是用户列表');
+  }
+  selected.value = value.map(String);
+  emit('update:value', selected.value.join(','));
+  emit('setAssigneeText', selectedLabels(selected.value).join('、'));
 }
 
-watch(() => props.value, (value) => void loadSelected(value), { immediate: true });
-function scheduleSearch() {
-  if (timer !== undefined) window.clearTimeout(timer);
-  timer = window.setTimeout(() => void search(), 250);
+async function loadUsers() {
+  loading.value = true;
+  try {
+    const data = await fetchUserListApi();
+    if (!Array.isArray(data)) throw new Error('用户列表响应格式错误');
+    users.value = data;
+    selected.value = normalizeSelectedValues(props.value);
+  } finally {
+    loading.value = false;
+  }
 }
-onMounted(() => void search());
-onBeforeUnmount(() => { if (timer !== undefined) window.clearTimeout(timer); });
+watch(() => props.value, (value) => {
+  selected.value = normalizeSelectedValues(value);
+}, { immediate: true });
+
+onMounted(() => void loadUsers());
 </script>
 
 <template>
-  <Select
-    v-model:value="selected"
+  <a-tree-select
+    :value="selected"
     mode="multiple"
-    label-in-value
-    show-search
-    :filter-option="false"
-    option-filter-prop="label"
-    :options="options"
+    :tree-data="treeData"
     :loading="loading"
+    tree-default-expand-all
+    tree-checkable
+    show-search
+    tree-node-filter-prop="title"
+    show-checked-strategy="SHOW_CHILD"
     :max-tag-count="'responsive'"
     allow-clear
-    placeholder="搜索并选择一个或多个参与人"
+    placeholder="搜索并选择一个或多个审批人"
     style="width: 100%"
-    @search="(value) => { keyword = value; scheduleSearch(); }"
-    @change="update"
+    @update:value="update"
   />
 </template>

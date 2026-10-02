@@ -39,12 +39,34 @@ const designerMode = ref<'canvas' | 'dingtalk'>('dingtalk');
 function cloneDefaultFlow() {
   return JSON.parse(JSON.stringify(DEFAULT_FLOW_DATA)) as Record<string, any>;
 }
-function normalizeDesignerGraph(jsonObject: Record<string, any> | undefined, data: { name?: string; displayName?: string; type?: string | number }) {
+function normalizeDesignerGraph(
+  jsonObject: Record<string, any> | undefined,
+  data: { name?: string; displayName?: string; type?: string | number },
+) {
   const graph = jsonObject && Array.isArray(jsonObject.nodes) && Array.isArray(jsonObject.edges)
     ? jsonObject
     : cloneDefaultFlow();
+  const nodes = (graph.nodes || []).map((node: any) => {
+    if (!String(node.type || '').endsWith('task')) return node;
+    const properties = node.properties || {};
+    const taskType = typeof properties.taskType === 'string' && properties.taskType.trim()
+      ? properties.taskType
+      : 'Major';
+    const performType = typeof properties.performType === 'string' && properties.performType.trim()
+      ? properties.performType
+      : 'ANY';
+    return {
+      ...node,
+      properties: {
+        ...properties,
+        taskType,
+        performType,
+      },
+    };
+  });
   return {
     ...graph,
+    nodes,
     name: graph.name || data.name || '',
     displayName: graph.displayName || data.displayName || '',
     type: graph.type || data.type || 'approval',
@@ -256,7 +278,7 @@ defineExpose({
                   <a-input v-else v-model:value="model.candidateGroups" />
                 </div>
               </a-form-item>
-              <a-form-item label="候选人处理类" :colon="false">
+              <a-form-item label="候选用户处理类" :colon="false">
                 <a-radio-group
                   v-model:value="candidateHandlerConfigWay"
                   button-style="solid"

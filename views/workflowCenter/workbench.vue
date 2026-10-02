@@ -232,9 +232,9 @@ onMounted(() => void reload());
 
 .workbench-cards {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  margin-bottom: 16px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
 .workbench-panels {
@@ -248,9 +248,9 @@ onMounted(() => void reload());
   position: relative;
   overflow: hidden;
   border: 1px solid #edf0f5;
-  border-radius: 14px;
+  border-radius: 10px;
   background: #fff;
-  box-shadow: 0 4px 14px rgb(31 35 41 / 4%);
+  box-shadow: 0 2px 8px rgb(31 35 41 / 4%);
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
@@ -276,8 +276,8 @@ onMounted(() => void reload());
 .workbench-card :deep(.ant-card-body) {
   position: relative;
   z-index: 1;
-  min-height: 136px;
-  padding: 16px 18px;
+  min-height: 84px;
+  padding: 8px 10px;
 }
 
 .workbench-card--blue { --card-color: #1677ff; --card-soft: #e6f4ff; }
@@ -317,42 +317,41 @@ onMounted(() => void reload());
 .workbench-card-main {
   display: flex;
   align-items: center;
-  gap: 11px;
-  margin-top: 15px;
+  gap: 7px;
+  margin-top: 7px;
 }
-
 .workbench-card-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 24px;
+  height: 24px;
   flex-shrink: 0;
-  border-radius: 9px;
+  border-radius: 6px;
   color: var(--card-color);
   background: var(--card-soft);
-  font-size: 17px;
+  font-size: 14px;
 }
 
 .workbench-card-value {
   color: #1f2937;
-  font-size: 28px;
+  font-size: 20px;
   font-variant-numeric: tabular-nums;
   font-weight: 700;
   line-height: 1;
 }
 
 .workbench-card-label {
-  margin-top: 10px;
+  margin-top: 4px;
   color: #303846;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
 }
 
 .workbench-card-description {
-  margin-top: 3px;
+  margin-top: 1px;
   color: #98a0ad;
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .workbench-panel :deep(.ant-card-head) {
@@ -397,13 +396,19 @@ onMounted(() => void reload());
   gap: 8px;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1200px) {
   .workbench-cards {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .workbench-panels {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .workbench-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 

@@ -198,9 +198,18 @@ export async function getHighLightApi(id: string) {
   );
 }
 
-/** 获取用户列表（用于选择下一节点处理人） */
+export interface WorkflowUserOption {
+  id: string;
+  username: string;
+  nickname: string;
+  dept_id?: string | null;
+  dept_name?: null | string;
+  dept_parent_id?: string | null;
+}
+
+/** 获取带部门的用户列表（用于选择下一节点处理人） */
 export async function fetchUserListApi() {
-  return await requestClient.get<
-    Array<{ id: string; nickname: string; username: string }>
-  >('/api/v1/wf/processInstance/users');
+  return await requestClient.get<WorkflowUserOption[]>(
+    '/api/v1/wf/processInstance/users',
+  );
 }
