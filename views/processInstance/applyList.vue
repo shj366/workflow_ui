@@ -31,7 +31,7 @@ onMounted(async () => {
 <template>
   <Page auto-content-height>
     <template v-for="group in dataSource" :key="group.type">
-      <a-card v-if="group.items.length > 0" :title="group.title" class="mb-4">
+      <a-card v-if="group.items.length > 0" :title="group.title" style="margin-bottom: 12px;">
         <a-row :gutter="[16, 16]">
           <a-col
             v-for="item in group.items"
@@ -58,7 +58,14 @@ onMounted(async () => {
         </a-row>
       </a-card>
     </template>
-    <a-empty v-if="dataSource.length === 0" description="暂无可发起的流程" />
+    <div style="
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 400px;
+    ">
+      <a-empty v-if="dataSource.length === 0" description="暂无可发起的流程" />
+    </div>
     <StartProcess ref="startProcessRef" />
   </Page>
 </template>
