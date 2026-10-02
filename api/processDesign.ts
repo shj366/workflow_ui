@@ -1,21 +1,44 @@
 import { requestClient } from '#/api/request';
 
+export interface ProcessDesignVersion {
+  id: string;
+  name: string;
+  displayName?: string;
+  type?: string;
+  state?: number;
+  version?: number;
+  createdTime?: string;
+  created_time?: string;
+  isVersion?: boolean;
+}
+
 export interface ProcessDesignItem {
   id: number;
   name: string;
   displayName?: string;
-  display_name?: string; // fallback for legacy snake_case usage
+  display_name?: string;
   type?: string;
   icon?: string;
   is_deployed: number;
   isDeployed?: number;
-  jsonObject?: any;
-  json_object?: any;
+  jsonObject?: {
+    formSchemaJsonStr?: string;
+    [key: string]: unknown;
+  };
+  json_object?: {
+    formSchemaJsonStr?: string;
+    [key: string]: unknown;
+  };
   remark?: string;
   create_time?: string;
   update_time?: string;
   createTime?: string;
   updateTime?: string;
+  state?: number;
+  version?: number;
+  isVersion?: boolean;
+  children?: ProcessDesignVersion[];
+  versionCount?: number;
 }
 
 export interface ProcessDesignCreate {

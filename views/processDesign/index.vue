@@ -47,6 +47,12 @@ const gridOptions = reactive<VxeTableGridOptions<ProcessDesignItem>>({
   rowConfig: {
     keyField: 'id',
   },
+  treeConfig: {
+    childrenField: 'children',
+    expandAll: true,
+    reserve: true,
+    showLine: true,
+  },
   checkboxConfig: {
     highlight: true,
   },
@@ -272,25 +278,33 @@ function handleMoreAction(key: string, row: ProcessDesignItem) {
       </template>
 
       <template #isDeployed="{ row }">
-        <a-tag v-if="row.isDeployed === 1" color="success">已部署</a-tag>
+        <a-tag v-if="row.isVersion" :color="row.state === 1 ? 'success' : 'default'">
+          {{ row.state === 1 ? '已启用' : '已禁用' }}
+        </a-tag>
+        <a-tag v-else-if="row.isDeployed === 1" color="success">已部署</a-tag>
         <a-tag v-else color="default">未部署</a-tag>
       </template>
 
       <template #action="{ row }">
-        <a
-          style="margin-right: 8px; color: #1677ff; cursor: pointer"
-          @click="handleDesign(row)"
-        >
-          设计
-        </a>
-        <a-dropdown
-          :menu="{
-            items: getMoreMenuItems(row),
-            onClick: ({ key }) => handleMoreAction(key as string, row),
-          }"
-        >
-          <a style="color: #1677ff; cursor: pointer" @click.prevent> 更多 </a>
-        </a-dropdown>
+        <template v-if="row.isVersion">
+          <span class="text-gray-500">版本 v{{ row.version }}</span>
+        </template>
+        <template v-else>
+          <a
+            style="margin-right: 8px; color: #1677ff; cursor: pointer"
+            @click="handleDesign(row)"
+          >
+            设计
+          </a>
+          <a-dropdown
+            :menu="{
+              items: getMoreMenuItems(row),
+              onClick: ({ key }) => handleMoreAction(key as string, row),
+            }"
+          >
+            <a style="color: #1677ff; cursor: pointer" @click.prevent> 更多 </a>
+          </a-dropdown>
+        </template>
       </template>
     </Grid>
 
