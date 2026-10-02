@@ -36,7 +36,28 @@ export interface ProcessDesignUpdate {
 
 export interface ProcessDesignSaveDesign {
   id: number;
-  jsonObject?: any;
+  jsonObject?: Record<string, unknown>;
+}
+
+
+function normalizeProcessType<T extends { type?: unknown }>(data: T): T {
+  if (data.type === undefined || data.type === null) {
+    return data;
+  }
+  return { ...data, type: String(data.type).trim() };
+}
+
+function normalizeProcessDesignJson(jsonObject: unknown): unknown {
+  if (!jsonObject || typeof jsonObject !== 'object' || Array.isArray(jsonObject)) {
+    return jsonObject;
+  }
+  if (!('type' in jsonObject)) {
+    return jsonObject;
+  }
+  const type = jsonObject.type;
+  return type === undefined || type === null
+    ? jsonObject
+    : { ...jsonObject, type: String(type).trim() };
 }
 
 /**
@@ -47,8 +68,17 @@ export async function fetchProcessDesignPageApi(params: {
   name?: string;
   page: number;
   size: number;
+  type?: string | number;
 }) {
-  return requestClient.get<any>('/api/v1/wf/processDesign/page', { params });
+  const normalizedParams = {
+    ...params,
+    ...(params.type === undefined || params.type === null
+      ? {}
+      : { type: String(params.type).trim() }),
+  };
+  return requestClient.get<unknown>('/api/v1/wf/processDesign/page', {
+    params: normalizedParams,
+  });
 }
 
 /**
@@ -64,7 +94,10 @@ export async function getProcessDesignDetailApi(id: number) {
  * 创建流程设计
  */
 export async function createProcessDesignApi(data: ProcessDesignCreate) {
-  return requestClient.post('/api/v1/wf/processDesign/create', data);
+  return requestClient.post(
+    '/api/v1/wf/processDesign/create',
+    normalizeProcessType(data),
+  );
 }
 
 /**
@@ -74,14 +107,20 @@ export async function updateProcessDesignApi(
   id: number | string,
   data: ProcessDesignUpdate,
 ) {
-  return requestClient.post('/api/v1/wf/processDesign/update', { id, ...data });
+  return requestClient.post(
+    '/api/v1/wf/processDesign/update',
+    { id, ...normalizeProcessType(data) },
+  );
 }
 
 /**
  * 保存流程设计JSON
  */
 export async function saveProcessDesignApi(data: ProcessDesignSaveDesign) {
-  return requestClient.post('/api/v1/wf/processDesign/saveDesign', data);
+  return requestClient.post('/api/v1/wf/processDesign/saveDesign', {
+    ...data,
+    jsonObject: normalizeProcessDesignJson(data.jsonObject),
+  });
 }
 
 /**
