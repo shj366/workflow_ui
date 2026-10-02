@@ -65,6 +65,12 @@ export function useColumns(): VxeGridPropTypes.Columns {
       field: 'updateTime',
       title: '更新时间',
       width: 180,
+      formatter: ({ row }) => {
+        const value = (row.update_time ?? row.updateTime) as string | undefined;
+        if (!value) return '';
+        const formatted = value.replace('T', ' ');
+        return formatted.length > 19 ? formatted.slice(0, 19) : formatted;
+      },
     },
     {
       title: '操作',

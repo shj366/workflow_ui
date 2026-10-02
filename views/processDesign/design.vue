@@ -327,4 +327,7 @@ defineExpose({
 :global(.fd-drawer-root) {
   z-index: 2000 !important;
 }
+:global(.fd-modal-root) {
+  z-index: 2100 !important;
+}
 </style>
