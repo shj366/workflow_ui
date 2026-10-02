@@ -65,10 +65,10 @@ function normalizeDesignerGraph(
       },
     };
   });
-  const graphType = hasGraph && graph.type != null && graph.type !== ''
-    ? String(graph.type).trim()
-    : data.type != null && data.type !== ''
-      ? String(data.type).trim()
+  const graphType = data.type != null && data.type !== ''
+    ? String(data.type).trim()
+    : hasGraph && graph.type != null && graph.type !== ''
+      ? String(graph.type).trim()
       : 'approval';
   return {
     ...graph,
