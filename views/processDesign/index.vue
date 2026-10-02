@@ -224,7 +224,6 @@ function getMoreMenuItems(row: ProcessDesignItem) {
     {
       key: 'deploy',
       label: '部署',
-      disabled: row.isDeployed === 1,
     },
     {
       key: 'redeploy',
