@@ -23,7 +23,6 @@ import {
   redeployProcessDesignApi,
   updateProcessDesignApi,
 } from '#/plugins/workflow/api/processDesign';
-import { upAndDownProcessDefineApi } from '#/plugins/workflow/api/processDefine';
 
 import { formSchema, querySchema, useColumns } from './data';
 import ProcessDesigner from './design.vue';
@@ -47,12 +46,6 @@ const formOptions: VbenFormProps = {
 const gridOptions = reactive<VxeTableGridOptions<ProcessDesignItem>>({
   rowConfig: {
     keyField: 'id',
-  },
-  treeConfig: {
-    childrenField: 'children',
-    expandAll: true,
-    reserve: true,
-    showLine: true,
   },
   checkboxConfig: {
     highlight: true,
@@ -88,14 +81,6 @@ const [Grid, gridApi] = useVbenVxeGrid({
   formOptions,
   gridOptions,
 });
-function expandAll() {
-  gridApi.grid?.setAllTreeExpand(true);
-}
-
-function collapseAll() {
-  gridApi.grid?.setAllTreeExpand(false);
-}
-
 const [Form, formApi] = useVbenForm({
   schema: formSchema,
   showDefaultActions: false,
@@ -114,7 +99,7 @@ const [Modal, modalApi] = useVbenModal({
       currentRecordId.value = data.id;
       formApi.setValues({
         ...data,
-        type: data.type == null ? data.type : String(data.type).trim(),
+        type: data.type === null || data.type === undefined ? data.type : String(data.type).trim(),
       });
       modalApi.setState({ title: '编辑流程设计' });
       return;
@@ -231,30 +216,6 @@ function handleSuccess() {
   gridApi.reload();
 }
 
-async function handleVersionState(row: ProcessDesignItem) {
-  const nextState = row.state === 1 ? 0 : 1;
-  const actionText = nextState === 1 ? '启用' : '禁用';
-  try {
-    await upAndDownProcessDefineApi({
-      ids: [String(row.id)],
-      opType: nextState,
-    });
-    message.success(`${actionText}成功`);
-    gridApi.reload();
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-function getVersionMenuItems(row: ProcessDesignItem) {
-  return [
-    {
-      key: row.state === 1 ? 'disable' : 'enable',
-      label: row.state === 1 ? '禁用' : '启用',
-    },
-  ];
-}
-
 function getMoreMenuItems(row: ProcessDesignItem) {
   return [
     { key: 'edit', label: '编辑' },
@@ -308,62 +269,39 @@ function handleMoreAction(key: string, row: ProcessDesignItem) {
       <template #toolbar-actions>
         <a-button type="primary" @click="handleAdd"> 新增 </a-button>
       </template>
-      <template #toolbar-tools>
-        <a-button class="mr-2" @click="expandAll">展开全部</a-button>
-        <a-button @click="collapseAll">折叠全部</a-button>
-      </template>
 
       <template #displayName="{ row }">
-        {{ row.isVersion ? '' : row.displayName }}
+        {{ row.displayName }}
       </template>
       <template #name="{ row }">
-        {{ row.isVersion ? '' : row.name }}
+        {{ row.name }}
       </template>
       <template #type="{ row }">
-        {{ row.isVersion ? '' : row.type }}
-      </template>
-      <template #version="{ row }">
-        {{ row.isVersion ? `v${row.version}` : '' }}
+        {{ row.type }}
       </template>
       <template #remark="{ row }">
-        {{ row.isVersion ? row.remark || '' : '' }}
+        {{ row.remark || '' }}
       </template>
       <template #isDeployed="{ row }">
-        <a-tag v-if="row.isVersion" :color="row.state === 1 ? 'success' : 'default'">
-          {{ row.state === 1 ? '已启用' : '已禁用' }}
-        </a-tag>
-        <a-tag v-else-if="row.isDeployed === 1" color="success">已部署</a-tag>
+        <a-tag v-if="row.isDeployed === 1" color="success">已部署</a-tag>
         <a-tag v-else color="default">未部署</a-tag>
       </template>
 
       <template #action="{ row }">
-        <template v-if="row.isVersion">
-          <span style="margin-right: 8px" class="text-gray-500">版本 v{{ row.version }}</span>
-          <a-dropdown
-            :menu="{
-              items: getVersionMenuItems(row),
-              onClick: () => handleVersionState(row),
-            }"
-          >
-            <a style="color: #1677ff; cursor: pointer" @click.prevent> 操作 </a>
-          </a-dropdown>
-        </template>
-        <template v-else>
-          <a
-            style="margin-right: 8px; color: #1677ff; cursor: pointer"
-            @click="handleDesign(row)"
-          >
-            设计
-          </a>
-          <a-dropdown
-            :menu="{
-              items: getMoreMenuItems(row),
-              onClick: ({ key }) => handleMoreAction(key as string, row),
-            }"
-          >
-            <a style="color: #1677ff; cursor: pointer" @click.prevent> 更多 </a>
-          </a-dropdown>
-        </template>
+        <a
+          style="margin-right: 8px; color: #1677ff; cursor: pointer"
+          @click="handleDesign(row)"
+        >
+          设计
+        </a>
+        <a-dropdown
+          :menu="{
+            items: getMoreMenuItems(row),
+            onClick: ({ key }) => handleMoreAction(key as string, row),
+          }"
+        >
+          <a style="color: #1677ff; cursor: pointer" @click.prevent> 更多 </a>
+        </a-dropdown>
       </template>
     </Grid>
 

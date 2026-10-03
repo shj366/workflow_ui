@@ -54,12 +54,6 @@ export function useColumns(): VxeGridPropTypes.Columns {
       slots: { default: 'type' },
     },
     {
-      field: 'version',
-      title: '版本',
-      width: 90,
-      slots: { default: 'version' },
-    },
-    {
       field: 'isDeployed',
       title: '是否部署',
       width: 120,
