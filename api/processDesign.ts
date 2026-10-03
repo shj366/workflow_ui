@@ -9,6 +9,7 @@ export interface ProcessDesignVersion {
   version?: number;
   createdTime?: string;
   created_time?: string;
+  remark?: string;
   isVersion?: boolean;
 }
 

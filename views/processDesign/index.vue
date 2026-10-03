@@ -313,6 +313,21 @@ function handleMoreAction(key: string, row: ProcessDesignItem) {
         <a-button @click="collapseAll">折叠全部</a-button>
       </template>
 
+      <template #displayName="{ row }">
+        {{ row.isVersion ? '' : row.displayName }}
+      </template>
+      <template #name="{ row }">
+        {{ row.isVersion ? '' : row.name }}
+      </template>
+      <template #type="{ row }">
+        {{ row.isVersion ? '' : row.type }}
+      </template>
+      <template #version="{ row }">
+        {{ row.isVersion ? `v${row.version}` : '' }}
+      </template>
+      <template #remark="{ row }">
+        {{ row.isVersion ? row.remark || '' : '' }}
+      </template>
       <template #isDeployed="{ row }">
         <a-tag v-if="row.isVersion" :color="row.state === 1 ? 'success' : 'default'">
           {{ row.state === 1 ? '已启用' : '已禁用' }}

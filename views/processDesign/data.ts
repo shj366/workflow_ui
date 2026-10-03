@@ -37,22 +37,31 @@ export function useColumns(): VxeGridPropTypes.Columns {
     },
     {
       field: 'displayName',
-      title: '显示名称',
+      title: '名称',
       minWidth: 150,
+      slots: { default: 'displayName' },
     },
     {
       field: 'name',
       title: '唯一编码',
       minWidth: 150,
+      slots: { default: 'name' },
     },
     {
       field: 'type',
       title: '流程类型',
       width: 120,
+      slots: { default: 'type' },
+    },
+    {
+      field: 'version',
+      title: '版本',
+      width: 90,
+      slots: { default: 'version' },
     },
     {
       field: 'isDeployed',
-      title: '是否已部署',
+      title: '是否部署',
       width: 120,
       slots: { default: 'isDeployed' },
     },
@@ -60,6 +69,7 @@ export function useColumns(): VxeGridPropTypes.Columns {
       field: 'remark',
       title: '备注',
       minWidth: 150,
+      slots: { default: 'remark' },
     },
     {
       field: 'updateTime',
