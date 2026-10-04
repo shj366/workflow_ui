@@ -25,26 +25,31 @@ const viewerRef = ref();
 const startProcessRef = ref();
 function buildVersionTree(items: ProcessDefineItem[]): ProcessDefineItem[] {
   const groups = new Map<string, ProcessDefineItem>();
+  const rows: ProcessDefineItem[] = [];
   for (const item of items) {
-    const key = item.name || String(item.id);
+    const key = `${item.name}\u0000${item.type || ''}\u0000${item.displayName || item.display_name || ''}`;
     let group = groups.get(key);
     if (!group) {
       group = {
         ...item,
         id: `group:${key}`,
         isVersionGroup: true,
-        children: [],
+        parentId: undefined,
+        children: undefined,
       };
       groups.set(key, group);
+      group.versionCount = 0;
+      rows.push(group);
     }
-    group.children?.push({ ...item, isVersionGroup: false, children: undefined });
+    group.versionCount = (group.versionCount || 0) + 1;
+    rows.push({
+      ...item,
+      parentId: group.id,
+      children: undefined,
+      isVersionGroup: false,
+    });
   }
-  return [...groups.values()].map((group) => ({
-    ...group,
-    children: [...(group.children || [])].sort(
-      (left, right) => (right.version || 0) - (left.version || 0),
-    ),
-  }));
+  return rows;
 }
 
 const formOptions: VbenFormProps = {
@@ -61,7 +66,8 @@ const gridOptions = reactive<VxeTableGridOptions<ProcessDefineItem>>({
     keyField: 'id',
   },
   treeConfig: {
-    childrenField: 'children',
+    parentField: 'parentId',
+    transform: true,
     expandAll: true,
     reserve: true,
     showLine: true,
@@ -104,6 +110,13 @@ const [Grid, gridApi] = useVbenVxeGrid({
   formOptions,
   gridOptions,
 });
+function expandAll() {
+  gridApi.grid?.setAllTreeExpand(true);
+}
+
+function collapseAll() {
+  gridApi.grid?.setAllTreeExpand(false);
+}
 
 function getFlowDisplayName(row: ProcessDefineItem) {
   return row.display_name || row.displayName || row.name || `#${row.id}`;
@@ -173,9 +186,33 @@ function handleMoreAction(key: string, row: ProcessDefineItem) {
 <template>
   <Page auto-content-height>
     <Grid>
+      <template #toolbar-tools>
+        <a-button class="mr-2" @click="expandAll">展开全部</a-button>
+        <a-button @click="collapseAll">折叠全部</a-button>
+      </template>
+      <template #name="{ row }">
+        {{ row.isVersionGroup ? row.name : '' }}
+      </template>
+      <template #displayName="{ row }">
+        {{ row.isVersionGroup ? row.displayName || row.display_name : '' }}
+      </template>
+      <template #type="{ row }">
+        {{ row.isVersionGroup ? row.type : '' }}
+      </template>
+      <template #version="{ row }">
+        {{ row.isVersionGroup ? '' : `v${row.version}` }}
+      </template>
+      <template #state="{ row }">
+        <a-tag v-if="!row.isVersionGroup" :color="row.state === 1 ? 'success' : 'error'">
+          {{ row.state === 1 ? '可用' : '禁用' }}
+        </a-tag>
+      </template>
+      <template #remark="{ row }">
+        {{ row.isVersionGroup ? '' : row.remark || '' }}
+      </template>
       <template #action="{ row }">
         <template v-if="row.isVersionGroup">
-          <span class="text-gray-500">{{ row.children?.length || 0 }} 个版本</span>
+          <span class="text-gray-500">{{ row.versionCount || 0 }} 个版本</span>
         </template>
         <template v-else>
           <a

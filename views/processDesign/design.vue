@@ -23,7 +23,7 @@ const emit = defineEmits<{
 const DEFAULT_FLOW_DATA = {
   name: '',
   displayName: '',
-  type: 'approval',
+  type: '',
   nodes: [
     { id: 'start', type: 'snaker:start', x: 280, y: 280, properties: { width: 120, height: 80 }, text: { x: 280, y: 320, value: '开始' } },
     { id: 'apply', type: 'snaker:task', x: 480, y: 280, properties: { width: 120, height: 80, assignee: 'applicant', taskType: 'Major', performType: 'ANY', autoExecute: 'N' }, text: { x: 480, y: 280, value: '发起申请' } },
@@ -69,7 +69,7 @@ function normalizeDesignerGraph(
     ? String(data.type).trim()
     : hasGraph && graph.type != null && graph.type !== ''
       ? String(graph.type).trim()
-      : 'approval';
+      : '';
   return {
     ...graph,
     nodes,

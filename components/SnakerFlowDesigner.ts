@@ -29,7 +29,7 @@ const processForm = {
   formItems: [
     { name: 'name', label: '流程定义唯一编码', component: 'Input' },
     { name: 'displayName', label: '流程定义显示名称', component: 'Input' },
-    { name: 'type', label: '流程类型', component: 'Input', componentProps: { placeholder: '请输入流程类型' } },
+    { name: 'type', label: '流程类型', component: 'Input', rules: 'required', componentProps: { placeholder: '请输入流程类型' } },
     {
       name: 'instanceUrl',
       label: '实例启动表单',

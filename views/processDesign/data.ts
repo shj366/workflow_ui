@@ -108,6 +108,7 @@ export const formSchema: VbenFormSchema[] = [
     fieldName: 'type',
     label: '流程类型',
     component: 'Input',
+    rules: 'required',
     componentProps: {
       placeholder: '请输入流程类型',
     },

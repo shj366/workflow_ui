@@ -1,5 +1,5 @@
 [plugin]
-summary = 'workflow工作流UI·企业审批流·钉钉风格'
+summary = 'workflow审批流工作流UI·企业审批流·钉钉风格'
 version = '1.0.0'
 description = '基于 mldong-flow-designer-plus 与 jeeflow 门面的前端审批流插件'
 author = 'shj366'

@@ -49,45 +49,37 @@ const columns: VxeGridProps['columns'] = [
     field: 'name',
     title: '编码',
     minWidth: 150,
+    slots: { default: 'name' },
   },
   {
     field: 'displayName',
-    title: '显示名称',
+    title: '名称',
     minWidth: 150,
+    slots: { default: 'displayName' },
   },
   {
     field: 'type',
-    title: '类型',
-    width: 100,
+    title: '流程类型',
+    width: 120,
+    slots: { default: 'type' },
   },
   {
     field: 'version',
     title: '版本',
     width: 80,
+    slots: { default: 'version' },
   },
   {
     field: 'state',
     title: '状态',
     width: 100,
-    cellRender: {
-      name: 'CellTag',
-      options: [
-        { label: '可用', value: 1, color: 'success' },
-        { label: '禁用', value: 0, color: 'error' },
-      ],
-    },
+    slots: { default: 'state' },
   },
   {
-    field: 'createdTime',
-    title: '创建时间',
-    width: 180,
-    sortable: true,
-    formatter: ({ row }) => {
-      const v = (row.created_time ?? row.createdTime) as string | undefined;
-      if (!v) return '';
-      const s = v.replace('T', ' ');
-      return s.length > 19 ? s.slice(0, 19) : s;
-    },
+    field: 'remark',
+    title: '备注',
+    minWidth: 180,
+    slots: { default: 'remark' },
   },
   {
     field: 'action',
