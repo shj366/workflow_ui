@@ -203,7 +203,10 @@ function handleMoreAction(key: string, row: ProcessDefineItem) {
         {{ row.isVersionGroup ? '' : `v${row.version}` }}
       </template>
       <template #state="{ row }">
-        <a-tag v-if="!row.isVersionGroup" :color="row.state === 1 ? 'success' : 'error'">
+        <a-tag
+          v-if="!row.isVersionGroup"
+          :color="row.state === 1 ? 'success' : 'error'"
+        >
           {{ row.state === 1 ? '可用' : '禁用' }}
         </a-tag>
       </template>

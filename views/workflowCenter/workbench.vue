@@ -94,21 +94,27 @@ function formatTime(value?: string) {
 }
 
 function taskTitle(task: ProcessTaskItem) {
-  return task.instanceExt?.autoGenTitle || task.instanceExt?.f_title || task.displayName || task.taskName;
+  return (
+    task.instanceExt?.autoGenTitle ||
+    task.instanceExt?.f_title ||
+    task.displayName ||
+    task.taskName
+  );
 }
 
 async function reload() {
   loading.value = true;
   loadError.value = '';
   try {
-    const [todo, done, activeMine, completedMine, cc, unreadCc] = await Promise.all([
-      fetchTodoTaskPageApi({ page: 1, size: 5 }),
-      fetchDoneTaskPageApi({ page: 1, size: 5 }),
-      fetchMyProcessInstancePageApi({ page: 1, size: 1, state: 10 }),
-      fetchMyProcessInstancePageApi({ page: 1, size: 1, state: 20 }),
-      fetchCcProcessInstancePageApi({ page: 1, size: 1 }),
-      fetchCcProcessInstancePageApi({ page: 1, size: 1, state: 0 }),
-    ]);
+    const [todo, done, activeMine, completedMine, cc, unreadCc] =
+      await Promise.all([
+        fetchTodoTaskPageApi({ page: 1, size: 5 }),
+        fetchDoneTaskPageApi({ page: 1, size: 5 }),
+        fetchMyProcessInstancePageApi({ page: 1, size: 1, state: 10 }),
+        fetchMyProcessInstancePageApi({ page: 1, size: 1, state: 20 }),
+        fetchCcProcessInstancePageApi({ page: 1, size: 1 }),
+        fetchCcProcessInstancePageApi({ page: 1, size: 1, state: 0 }),
+      ]);
     recentTasks.value = todo.items;
     recentDoneTasks.value = done.items;
     cards[0]!.count = todo.total;
@@ -118,7 +124,8 @@ async function reload() {
     cards[4]!.count = done.total;
     cards[5]!.count = cc.total;
   } catch (error) {
-    loadError.value = error instanceof Error ? error.message : '工作台数据加载失败';
+    loadError.value =
+      error instanceof Error ? error.message : '工作台数据加载失败';
   } finally {
     loading.value = false;
   }
@@ -130,8 +137,13 @@ onMounted(() => void reload());
 
 <template>
   <div class="workflow-workbench">
-
-    <a-alert v-if="loadError" class="mb-4" type="error" :message="loadError" show-icon />
+    <a-alert
+      v-if="loadError"
+      class="mb-4"
+      type="error"
+      :message="loadError"
+      show-icon
+    />
 
     <a-spin :spinning="loading">
       <div class="workbench-cards">
@@ -144,7 +156,10 @@ onMounted(() => void reload());
         >
           <div class="workbench-card-topline">
             <span class="workbench-card-badge">{{ card.badge }}</span>
-            <IconifyIcon icon="ant-design:arrow-up-right-outlined" class="workbench-card-arrow" />
+            <IconifyIcon
+              icon="ant-design:arrow-up-right-outlined"
+              class="workbench-card-arrow"
+            />
           </div>
           <div class="workbench-card-main">
             <div class="workbench-card-icon">
@@ -172,16 +187,30 @@ onMounted(() => void reload());
             </a-button>
           </template>
           <div v-if="recentTasks.length" class="workbench-task-list">
-            <div v-for="task in recentTasks" :key="task.id" class="workbench-task">
+            <div
+              v-for="task in recentTasks"
+              :key="task.id"
+              class="workbench-task"
+            >
               <div class="workbench-task-main">
                 <div class="workbench-task-title">{{ taskTitle(task) }}</div>
                 <div class="workbench-task-meta">
-                  {{ task.displayName || task.taskName }} · {{ formatTime(task.createTime) }}
+                  {{ task.displayName || task.taskName }} ·
+                  {{ formatTime(task.createTime) }}
                 </div>
               </div>
               <div class="workbench-task-actions">
-                <a-button type="primary" size="small" @click="emit('openTask', task)">办理</a-button>
-                <a-button size="small" @click="emit('openInstance', task.processInstanceId)">详情</a-button>
+                <a-button
+                  type="primary"
+                  size="small"
+                  @click="emit('openTask', task)"
+                  >办理</a-button
+                >
+                <a-button
+                  size="small"
+                  @click="emit('openInstance', task.processInstanceId)"
+                  >详情</a-button
+                >
               </div>
             </div>
           </div>
@@ -202,15 +231,24 @@ onMounted(() => void reload());
             </a-button>
           </template>
           <div v-if="recentDoneTasks.length" class="workbench-task-list">
-            <div v-for="task in recentDoneTasks" :key="task.id" class="workbench-task">
+            <div
+              v-for="task in recentDoneTasks"
+              :key="task.id"
+              class="workbench-task"
+            >
               <div class="workbench-task-main">
                 <div class="workbench-task-title">{{ taskTitle(task) }}</div>
                 <div class="workbench-task-meta">
-                  {{ task.displayName || task.taskName }} · {{ formatTime(task.finishTime) }}
+                  {{ task.displayName || task.taskName }} ·
+                  {{ formatTime(task.finishTime) }}
                 </div>
               </div>
               <div class="workbench-task-actions">
-                <a-button size="small" @click="emit('openInstance', task.processInstanceId)">详情</a-button>
+                <a-button
+                  size="small"
+                  @click="emit('openInstance', task.processInstanceId)"
+                  >详情</a-button
+                >
               </div>
             </div>
           </div>
@@ -228,7 +266,6 @@ onMounted(() => void reload());
   padding: 16px;
   background: #f5f7fa;
 }
-
 
 .workbench-cards {
   display: grid;
@@ -251,7 +288,10 @@ onMounted(() => void reload());
   border-radius: 10px;
   background: #fff;
   box-shadow: 0 2px 8px rgb(31 35 41 / 4%);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .workbench-card::after {
@@ -280,12 +320,30 @@ onMounted(() => void reload());
   padding: 8px 10px;
 }
 
-.workbench-card--blue { --card-color: #1677ff; --card-soft: #e6f4ff; }
-.workbench-card--orange { --card-color: #fa8c16; --card-soft: #fff7e6; }
-.workbench-card--purple { --card-color: #722ed1; --card-soft: #f9f0ff; }
-.workbench-card--green { --card-color: #52c41a; --card-soft: #f6ffed; }
-.workbench-card--cyan { --card-color: #13c2c2; --card-soft: #e6fffb; }
-.workbench-card--pink { --card-color: #eb2f96; --card-soft: #fff0f6; }
+.workbench-card--blue {
+  --card-color: #1677ff;
+  --card-soft: #e6f4ff;
+}
+.workbench-card--orange {
+  --card-color: #fa8c16;
+  --card-soft: #fff7e6;
+}
+.workbench-card--purple {
+  --card-color: #722ed1;
+  --card-soft: #f9f0ff;
+}
+.workbench-card--green {
+  --card-color: #52c41a;
+  --card-soft: #f6ffed;
+}
+.workbench-card--cyan {
+  --card-color: #13c2c2;
+  --card-soft: #e6fffb;
+}
+.workbench-card--pink {
+  --card-color: #eb2f96;
+  --card-soft: #fff0f6;
+}
 
 .workbench-card-topline {
   display: flex;
@@ -306,7 +364,9 @@ onMounted(() => void reload());
 .workbench-card-arrow {
   color: #b7bdc8;
   font-size: 16px;
-  transition: color 0.2s ease, transform 0.2s ease;
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .workbench-card:hover .workbench-card-arrow {

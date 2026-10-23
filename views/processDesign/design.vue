@@ -15,7 +15,6 @@ import { taskFormOptions } from '../processTask/componentMap';
 import AssigneeInput from './snakerflow/assigneeInput.vue';
 import CandidateGroupsInput from './snakerflow/candidateGroupsInput.vue';
 
-
 const emit = defineEmits<{
   success: [];
 }>();
@@ -25,13 +24,53 @@ const DEFAULT_FLOW_DATA = {
   displayName: '',
   type: '',
   nodes: [
-    { id: 'start', type: 'snaker:start', x: 280, y: 280, properties: { width: 120, height: 80 }, text: { x: 280, y: 320, value: '开始' } },
-    { id: 'apply', type: 'snaker:task', x: 480, y: 280, properties: { width: 120, height: 80, assignee: 'applicant', taskType: 'Major', performType: 'ANY', autoExecute: 'N' }, text: { x: 480, y: 280, value: '发起申请' } },
-    { id: 'end', type: 'snaker:end', x: 680, y: 280, properties: { width: 120, height: 80 }, text: { x: 680, y: 320, value: '结束' } },
+    {
+      id: 'start',
+      type: 'snaker:start',
+      x: 280,
+      y: 280,
+      properties: { width: 120, height: 80 },
+      text: { x: 280, y: 320, value: '开始' },
+    },
+    {
+      id: 'apply',
+      type: 'snaker:task',
+      x: 480,
+      y: 280,
+      properties: {
+        width: 120,
+        height: 80,
+        assignee: 'applicant',
+        taskType: 'Major',
+        performType: 'ANY',
+        autoExecute: 'N',
+      },
+      text: { x: 480, y: 280, value: '发起申请' },
+    },
+    {
+      id: 'end',
+      type: 'snaker:end',
+      x: 680,
+      y: 280,
+      properties: { width: 120, height: 80 },
+      text: { x: 680, y: 320, value: '结束' },
+    },
   ],
   edges: [
-    { id: 't1', type: 'snaker:transition', sourceNodeId: 'start', targetNodeId: 'apply', properties: {} },
-    { id: 't2', type: 'snaker:transition', sourceNodeId: 'apply', targetNodeId: 'end', properties: {} },
+    {
+      id: 't1',
+      type: 'snaker:transition',
+      sourceNodeId: 'start',
+      targetNodeId: 'apply',
+      properties: {},
+    },
+    {
+      id: 't2',
+      type: 'snaker:transition',
+      sourceNodeId: 'apply',
+      targetNodeId: 'end',
+      properties: {},
+    },
   ],
 };
 const flowData = ref<Record<string, any>>({});
@@ -44,18 +83,23 @@ function normalizeDesignerGraph(
   data: { name?: string; displayName?: string; type?: string },
 ) {
   const hasGraph = Boolean(
-    jsonObject && Array.isArray(jsonObject.nodes) && Array.isArray(jsonObject.edges),
+    jsonObject &&
+    Array.isArray(jsonObject.nodes) &&
+    Array.isArray(jsonObject.edges),
   );
   const graph = hasGraph ? jsonObject! : cloneDefaultFlow();
   const nodes = (graph.nodes || []).map((node: any) => {
     if (!String(node.type || '').endsWith('task')) return node;
     const properties = node.properties || {};
-    const taskType = typeof properties.taskType === 'string' && properties.taskType.trim()
-      ? properties.taskType
-      : 'Major';
-    const performType = typeof properties.performType === 'string' && properties.performType.trim()
-      ? properties.performType
-      : 'ANY';
+    const taskType =
+      typeof properties.taskType === 'string' && properties.taskType.trim()
+        ? properties.taskType
+        : 'Major';
+    const performType =
+      typeof properties.performType === 'string' &&
+      properties.performType.trim()
+        ? properties.performType
+        : 'ANY';
     return {
       ...node,
       properties: {
@@ -65,11 +109,12 @@ function normalizeDesignerGraph(
       },
     };
   });
-  const graphType = data.type != null && data.type !== ''
-    ? String(data.type).trim()
-    : hasGraph && graph.type != null && graph.type !== ''
-      ? String(graph.type).trim()
-      : '';
+  const graphType =
+    data.type != null && data.type !== ''
+      ? String(data.type).trim()
+      : hasGraph && graph.type != null && graph.type !== ''
+        ? String(graph.type).trim()
+        : '';
   return {
     ...graph,
     nodes,
@@ -179,7 +224,11 @@ defineExpose({
     <Modal>
       <div class="workflow-design-editor">
         <div class="mb-2 flex items-center justify-end">
-          <a-radio-group v-model:value="designerMode" button-style="solid" size="small">
+          <a-radio-group
+            v-model:value="designerMode"
+            button-style="solid"
+            size="small"
+          >
             <a-radio-button value="dingtalk">钉钉模式</a-radio-button>
             <a-radio-button value="canvas">画布模式</a-radio-button>
           </a-radio-group>
@@ -198,110 +247,114 @@ defineExpose({
             ]"
             v-bind="$attrs"
           >
-          <template #form-item-task-form="{ model, field }">
-            <a-form :label-col="{ flex: '120px' }" :model="model">
-              <a-form-item label="表单" :colon="false">
-                <a-select
-                  v-model:value="model[field]"
-                  :options="taskFormOptions"
-                  :styles="{ popup: { root: { zIndex: 9999 } } }"
-                  allow-clear
-                />
-              </a-form-item>
-            </a-form>
-          </template>
-          <template #form-item-task-assignee="{ model, field }">
-            <a-form :label-col="{ flex: '120px' }" :model="model">
-              <a-form-item label="参与者" :colon="false">
-                <a-radio-group
-                  v-model:value="assigneeConfigWay"
-                  button-style="solid"
-                  size="small"
-                >
-                  <a-radio-button :value="2">下拉选择</a-radio-button>
-                  <a-radio-button :value="1">文本输入</a-radio-button>
-                </a-radio-group>
-                <div style="margin-top: 8px">
-                  <AssigneeInput
-                    v-if="assigneeConfigWay === 2"
+            <template #form-item-task-form="{ model, field }">
+              <a-form :label-col="{ flex: '120px' }" :model="model">
+                <a-form-item label="表单" :colon="false">
+                  <a-select
                     v-model:value="model[field]"
-                    @set-assignee-text="handleSetAssigneeText($event, model)"
+                    :options="taskFormOptions"
+                    :styles="{ popup: { root: { zIndex: 9999 } } }"
+                    allow-clear
                   />
-                  <a-input v-else v-model:value="model[field]" />
-                </div>
-              </a-form-item>
-            </a-form>
-          </template>
-          <template #form-item-task-assignmentHandler="{ model, field }">
-            <a-form :label-col="{ flex: '120px' }" :model="model">
-              <a-form-item label="参与者处理类" :colon="false">
-                <a-radio-group
-                  v-model:value="assignmentHandlerConfigWay"
-                  button-style="solid"
-                  size="small"
-                >
-                  <a-radio-button :value="2" disabled>下拉选择</a-radio-button>
-                  <a-radio-button :value="1">文本输入</a-radio-button>
-                </a-radio-group>
-                <div style="margin-top: 8px">
-                  <a-input
-                    v-model:value="model[field]"
-                    placeholder="请输入全限定类名或Bean名称"
-                  />
-                </div>
-              </a-form-item>
-              <a-form-item label="候选用户" :colon="false">
-                <a-radio-group
-                  v-model:value="candidateUsersConfigWay"
-                  button-style="solid"
-                  size="small"
-                >
-                  <a-radio-button :value="2">下拉选择</a-radio-button>
-                  <a-radio-button :value="1">文本输入</a-radio-button>
-                </a-radio-group>
-                <div style="margin-top: 8px">
-                  <AssigneeInput
-                    v-if="candidateUsersConfigWay === 2"
-                    v-model:value="model.candidateUsers"
-                  />
-                  <a-input v-else v-model:value="model.candidateUsers" />
-                </div>
-              </a-form-item>
-              <a-form-item label="候选用户组" :colon="false">
-                <a-radio-group
-                  v-model:value="candidateGroupsConfigWay"
-                  button-style="solid"
-                  size="small"
-                >
-                  <a-radio-button :value="2">下拉选择</a-radio-button>
-                  <a-radio-button :value="1">文本输入</a-radio-button>
-                </a-radio-group>
-                <div style="margin-top: 8px">
-                  <CandidateGroupsInput
-                    v-if="candidateGroupsConfigWay === 2"
-                    v-model:value="model.candidateGroups"
-                  />
-                  <a-input v-else v-model:value="model.candidateGroups" />
-                </div>
-              </a-form-item>
-              <a-form-item label="候选用户处理类" :colon="false">
-                <a-radio-group
-                  v-model:value="candidateHandlerConfigWay"
-                  button-style="solid"
-                  size="small"
-                >
-                  <a-radio-button :value="2" disabled>下拉选择</a-radio-button>
-                  <a-radio-button :value="1">文本输入</a-radio-button>
-                </a-radio-group>
-                <div style="margin-top: 8px">
-                  <a-input
-                    v-model:value="model.candidateHandler"
-                    placeholder="请输入全限定类名或Bean名称"
-                  />
-                </div>
-              </a-form-item>
-            </a-form>
-          </template>
+                </a-form-item>
+              </a-form>
+            </template>
+            <template #form-item-task-assignee="{ model, field }">
+              <a-form :label-col="{ flex: '120px' }" :model="model">
+                <a-form-item label="参与者" :colon="false">
+                  <a-radio-group
+                    v-model:value="assigneeConfigWay"
+                    button-style="solid"
+                    size="small"
+                  >
+                    <a-radio-button :value="2">下拉选择</a-radio-button>
+                    <a-radio-button :value="1">文本输入</a-radio-button>
+                  </a-radio-group>
+                  <div style="margin-top: 8px">
+                    <AssigneeInput
+                      v-if="assigneeConfigWay === 2"
+                      v-model:value="model[field]"
+                      @set-assignee-text="handleSetAssigneeText($event, model)"
+                    />
+                    <a-input v-else v-model:value="model[field]" />
+                  </div>
+                </a-form-item>
+              </a-form>
+            </template>
+            <template #form-item-task-assignmentHandler="{ model, field }">
+              <a-form :label-col="{ flex: '120px' }" :model="model">
+                <a-form-item label="参与者处理类" :colon="false">
+                  <a-radio-group
+                    v-model:value="assignmentHandlerConfigWay"
+                    button-style="solid"
+                    size="small"
+                  >
+                    <a-radio-button :value="2" disabled
+                      >下拉选择</a-radio-button
+                    >
+                    <a-radio-button :value="1">文本输入</a-radio-button>
+                  </a-radio-group>
+                  <div style="margin-top: 8px">
+                    <a-input
+                      v-model:value="model[field]"
+                      placeholder="请输入全限定类名或Bean名称"
+                    />
+                  </div>
+                </a-form-item>
+                <a-form-item label="候选用户" :colon="false">
+                  <a-radio-group
+                    v-model:value="candidateUsersConfigWay"
+                    button-style="solid"
+                    size="small"
+                  >
+                    <a-radio-button :value="2">下拉选择</a-radio-button>
+                    <a-radio-button :value="1">文本输入</a-radio-button>
+                  </a-radio-group>
+                  <div style="margin-top: 8px">
+                    <AssigneeInput
+                      v-if="candidateUsersConfigWay === 2"
+                      v-model:value="model.candidateUsers"
+                    />
+                    <a-input v-else v-model:value="model.candidateUsers" />
+                  </div>
+                </a-form-item>
+                <a-form-item label="候选用户组" :colon="false">
+                  <a-radio-group
+                    v-model:value="candidateGroupsConfigWay"
+                    button-style="solid"
+                    size="small"
+                  >
+                    <a-radio-button :value="2">下拉选择</a-radio-button>
+                    <a-radio-button :value="1">文本输入</a-radio-button>
+                  </a-radio-group>
+                  <div style="margin-top: 8px">
+                    <CandidateGroupsInput
+                      v-if="candidateGroupsConfigWay === 2"
+                      v-model:value="model.candidateGroups"
+                    />
+                    <a-input v-else v-model:value="model.candidateGroups" />
+                  </div>
+                </a-form-item>
+                <a-form-item label="候选用户处理类" :colon="false">
+                  <a-radio-group
+                    v-model:value="candidateHandlerConfigWay"
+                    button-style="solid"
+                    size="small"
+                  >
+                    <a-radio-button :value="2" disabled
+                      >下拉选择</a-radio-button
+                    >
+                    <a-radio-button :value="1">文本输入</a-radio-button>
+                  </a-radio-group>
+                  <div style="margin-top: 8px">
+                    <a-input
+                      v-model:value="model.candidateHandler"
+                      placeholder="请输入全限定类名或Bean名称"
+                    />
+                  </div>
+                </a-form-item>
+              </a-form>
+            </template>
           </SnakerFlowDesigner>
         </div>
       </div>

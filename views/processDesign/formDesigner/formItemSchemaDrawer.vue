@@ -276,7 +276,9 @@ defineExpose({
           style="width: 100%"
           placeholder="请输入 1-24 的栅格宽度"
         />
-        <div class="mt-1 text-xs text-gray-400">栅格总宽度为 24，支持输入 1-24</div>
+        <div class="mt-1 text-xs text-gray-400">
+          栅格总宽度为 24，支持输入 1-24
+        </div>
       </a-form-item>
 
       <a-form-item label="默认值">

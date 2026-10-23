@@ -106,7 +106,8 @@ function setFieldsValue(values: Record<string, any>) {
 async function validate() {
   // 基础验证
   for (const field of formSchema.value) {
-    const required = field.required || field.rules?.some((rule: any) => rule.required);
+    const required =
+      field.required || field.rules?.some((rule: any) => rule.required);
     const value = formState.value[field.field];
     if (required && (value === undefined || value === null || value === '')) {
       throw new Error(`${field.label}不能为空`);
@@ -158,7 +159,10 @@ defineExpose({
           :key="field.field"
           :span="field.colProps?.span || 24"
         >
-          <a-form-item :label="field.label" :required="field.rules?.[0]?.required">
+          <a-form-item
+            :label="field.label"
+            :required="field.rules?.[0]?.required"
+          >
             <!-- Input -->
             <a-input
               v-if="field.component === 'Input'"

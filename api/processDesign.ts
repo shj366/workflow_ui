@@ -63,7 +63,6 @@ export interface ProcessDesignSaveDesign {
   jsonObject?: Record<string, unknown>;
 }
 
-
 function normalizeProcessType<T extends { type?: unknown }>(data: T): T {
   if (data.type === undefined || data.type === null) {
     return data;
@@ -72,7 +71,11 @@ function normalizeProcessType<T extends { type?: unknown }>(data: T): T {
 }
 
 function normalizeProcessDesignJson(jsonObject: unknown): unknown {
-  if (!jsonObject || typeof jsonObject !== 'object' || Array.isArray(jsonObject)) {
+  if (
+    !jsonObject ||
+    typeof jsonObject !== 'object' ||
+    Array.isArray(jsonObject)
+  ) {
     return jsonObject;
   }
   if (!('type' in jsonObject)) {
@@ -131,10 +134,10 @@ export async function updateProcessDesignApi(
   id: number | string,
   data: ProcessDesignUpdate,
 ) {
-  return requestClient.post(
-    '/api/v1/wf/processDesign/update',
-    { id, ...normalizeProcessType(data) },
-  );
+  return requestClient.post('/api/v1/wf/processDesign/update', {
+    id,
+    ...normalizeProcessType(data),
+  });
 }
 
 /**

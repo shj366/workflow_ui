@@ -21,7 +21,10 @@ const activeKey = ref('form');
 const loading = ref(false);
 const formKey = ref<Component | null>(null);
 const processVersion = ref<number | null>(null);
-const wfFormRef = ref<{ getFieldsValue?: () => Record<string, unknown>; validate?: () => Promise<unknown> } | null>(null);
+const wfFormRef = ref<{
+  getFieldsValue?: () => Record<string, unknown>;
+  validate?: () => Promise<unknown>;
+} | null>(null);
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -35,7 +38,12 @@ function extractJsonObject(response: unknown): Record<string, unknown> {
       continue;
     }
     if (!isRecord(payload)) return {};
-    if ('jsonObject' in payload || 'json_object' in payload || 'content' in payload) break;
+    if (
+      'jsonObject' in payload ||
+      'json_object' in payload ||
+      'content' in payload
+    )
+      break;
     if (!('data' in payload)) return {};
     payload = payload.data;
   }
@@ -94,7 +102,8 @@ const [Drawer, drawerApi] = useVbenDrawer({
           jsonObject.name ||
           '流程',
       );
-      const versionText = processVersion.value === null ? '' : ` v${processVersion.value}`;
+      const versionText =
+        processVersion.value === null ? '' : ` v${processVersion.value}`;
       drawerApi.setState({ title: `发起流程：${processName}${versionText}` });
 
       const instanceUrl = (jsonObject['process-instanceUrl'] ||
@@ -171,7 +180,12 @@ const tabItems = [
       <template #contentRender="{ item }">
         <!-- 表单标签页 -->
         <template v-if="item.key === 'form'">
-          <component :is="formKey" :key="formKey" ref="wfFormRef" :flow-data="flowData" />
+          <component
+            :is="formKey"
+            :key="formKey"
+            ref="wfFormRef"
+            :flow-data="flowData"
+          />
         </template>
         <!-- 流程图标签页 -->
         <template v-else-if="item.key === 'process'">

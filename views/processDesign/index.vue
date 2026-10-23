@@ -99,7 +99,10 @@ const [Modal, modalApi] = useVbenModal({
       currentRecordId.value = data.id;
       formApi.setValues({
         ...data,
-        type: data.type === null || data.type === undefined ? data.type : String(data.type).trim(),
+        type:
+          data.type === null || data.type === undefined
+            ? data.type
+            : String(data.type).trim(),
       });
       modalApi.setState({ title: '编辑流程设计' });
       return;

@@ -147,7 +147,8 @@ const [Grid, gridApi] = useVbenVxeGrid({
 });
 
 onMounted(() => {
-  if (activeTab.value !== TabType.WORKBENCH) void handleTabChange(activeTab.value);
+  if (activeTab.value !== TabType.WORKBENCH)
+    void handleTabChange(activeTab.value);
 });
 
 watch(

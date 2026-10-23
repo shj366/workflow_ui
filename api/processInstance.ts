@@ -185,7 +185,10 @@ export interface HighLightData {
   activeNodeNames?: string[];
   historyNodeNames?: string[];
   historyEdgeNames?: string[];
-  nodeProgress?: Record<string, { members: HighLightMember[]; type?: 'PARALLEL' | 'SEQUENTIAL' }>;
+  nodeProgress?: Record<
+    string,
+    { members: HighLightMember[]; type?: 'PARALLEL' | 'SEQUENTIAL' }
+  >;
 }
 
 /** 获取流程高亮数据 */

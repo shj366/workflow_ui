@@ -25,7 +25,10 @@ export function useJeeflowUiClient(): WorkflowClient {
               page: query.pageNum ?? 1,
               size: query.pageSize ?? 10,
             });
-            return { rows: result.items as ProcessTaskItem[], recordCount: result.total };
+            return {
+              rows: result.items as ProcessTaskItem[],
+              recordCount: result.total,
+            };
           },
         },
       },

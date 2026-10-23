@@ -32,13 +32,19 @@ function valueTokens(value?: string) {
 }
 
 function normalizeSelectedValues(value?: string) {
-  const usersById = new Map(users.value.map((user) => [user.id, user.username]));
+  const usersById = new Map(
+    users.value.map((user) => [user.id, user.username]),
+  );
   return valueTokens(value).map((item) => usersById.get(item) || item);
 }
 
 function selectedLabels(values: string[]) {
-  const labels = new Map(users.value.map((user) => [user.username, user.nickname || user.username]));
-  return values.map((value) => value === 'applicant' ? '发起人' : labels.get(value) || value);
+  const labels = new Map(
+    users.value.map((user) => [user.username, user.nickname || user.username]),
+  );
+  return values.map((value) =>
+    value === 'applicant' ? '发起人' : labels.get(value) || value,
+  );
 }
 
 function update(value: unknown) {
@@ -61,9 +67,13 @@ async function loadUsers() {
     loading.value = false;
   }
 }
-watch(() => props.value, (value) => {
-  selected.value = normalizeSelectedValues(value);
-}, { immediate: true });
+watch(
+  () => props.value,
+  (value) => {
+    selected.value = normalizeSelectedValues(value);
+  },
+  { immediate: true },
+);
 
 onMounted(() => void loadUsers());
 </script>
