@@ -1,9 +1,8 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 
-import SnakerFlowDesigner from '#/plugins/workflow/components/SnakerFlowDesigner';
-
 import { getProcessDefineDetailApi } from '#/plugins/workflow/api/processDefine';
+import SnakerFlowDesigner from '#/plugins/workflow/components/SnakerFlowDesigner';
 
 const visible = ref(false);
 const activeKey = ref('processGraph');

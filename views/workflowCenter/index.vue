@@ -27,8 +27,8 @@ import {
 import HistoryDrawer from '../processInstance/HistoryDrawer.vue';
 import TaskDrawer from '../processTask/TaskDrawer.vue';
 import Surrogate from '../processTask/taskForm/surrogate.vue';
-import Workbench from './workbench.vue';
 import { getColumns, getQuerySchema, TabType } from './data';
+import Workbench from './workbench.vue';
 
 const route = useRoute();
 const ALL_TAB_VALUES = Object.values(TabType) as TabTypeValues[];
@@ -198,7 +198,7 @@ const handleTabChange = async (key: any) => {
   }
 };
 
-function handleWorkbenchGoto(tab: 'todo' | 'done' | 'my_initiated' | 'cc') {
+function handleWorkbenchGoto(tab: 'cc' | 'done' | 'my_initiated' | 'todo') {
   activeTab.value = tab;
   void handleTabChange(tab);
 }

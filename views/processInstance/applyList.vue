@@ -76,8 +76,8 @@ onMounted(async () => {
     <div
       style="
         display: flex;
-        justify-content: center;
         align-items: center;
+        justify-content: center;
         min-height: 400px;
       "
     >
@@ -116,9 +116,10 @@ onMounted(async () => {
   color: #333;
   text-align: center;
 }
+
 .process-version {
   margin-top: 4px;
-  color: #8c8c8c;
   font-size: 12px;
+  color: #8c8c8c;
 }
 </style>

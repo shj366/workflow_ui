@@ -6,14 +6,14 @@ type WorkflowClient = {
   api: {
     processTask: {
       todoList: (query: { pageNum?: number; pageSize?: number }) => Promise<{
-        rows: ProcessTaskItem[];
         recordCount: number;
+        rows: ProcessTaskItem[];
       }>;
     };
   };
 };
 
-let context: WorkflowClient | undefined;
+let context: undefined | WorkflowClient;
 
 export function useJeeflowUiClient(): WorkflowClient {
   if (!context) {

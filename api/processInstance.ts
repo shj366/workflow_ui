@@ -205,9 +205,9 @@ export interface WorkflowUserOption {
   id: string;
   username: string;
   nickname: string;
-  dept_id?: string | null;
+  dept_id?: null | string;
   dept_name?: null | string;
-  dept_parent_id?: string | null;
+  dept_parent_id?: null | string;
 }
 
 /** 获取带部门的用户列表（用于选择下一节点处理人） */

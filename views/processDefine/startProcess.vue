@@ -1,15 +1,16 @@
 <script lang="ts" setup>
 import type { Component } from 'vue';
+
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { useVbenDrawer } from '@vben/common-ui';
 
 import { message } from 'antdv-next';
-import SnakerFlowDesigner from '#/plugins/workflow/components/SnakerFlowDesigner';
 
 import { getProcessDefineDetailApi } from '#/plugins/workflow/api/processDefine';
 import { startAndExecuteApi } from '#/plugins/workflow/api/processInstance';
+import SnakerFlowDesigner from '#/plugins/workflow/components/SnakerFlowDesigner';
 
 import { componentMap as wfFormComponentMap } from './componentMap';
 import SchemaWfForm from './wfForm/schemaWfForm.vue';
@@ -20,11 +21,11 @@ const recordId = ref('');
 const activeKey = ref('form');
 const loading = ref(false);
 const formKey = ref<Component | null>(null);
-const processVersion = ref<number | null>(null);
-const wfFormRef = ref<{
+const processVersion = ref<null | number>(null);
+const wfFormRef = ref<null | {
   getFieldsValue?: () => Record<string, unknown>;
   validate?: () => Promise<unknown>;
-} | null>(null);
+}>(null);
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -58,7 +59,7 @@ function extractJsonObject(response: unknown): Record<string, unknown> {
   return {};
 }
 
-function extractVersion(response: unknown): number | null {
+function extractVersion(response: unknown): null | number {
   let payload: unknown = response;
   for (let index = 0; index < 4; index += 1) {
     if (!isRecord(payload)) return null;

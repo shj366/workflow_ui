@@ -26,7 +26,7 @@ async function open(record: any) {
   try {
     const data = await fetchUserListApi();
     if (!Array.isArray(data)) {
-      throw new Error('用户列表响应格式错误');
+      throw new TypeError('用户列表响应格式错误');
     }
     userList.value = data;
   } catch {

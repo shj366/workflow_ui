@@ -3,9 +3,8 @@ import { ref } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 
-import SnakerFlowDesigner from '#/plugins/workflow/components/SnakerFlowDesigner';
-
 import { getProcessDefineDetailApi } from '#/plugins/workflow/api/processDefine';
+import SnakerFlowDesigner from '#/plugins/workflow/components/SnakerFlowDesigner';
 
 const flowData = ref({});
 const recordId = ref('');

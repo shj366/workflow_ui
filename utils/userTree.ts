@@ -2,9 +2,9 @@ export interface WorkflowUserOption {
   id: string;
   username: string;
   nickname: string;
-  dept_id?: string | null;
+  dept_id?: null | string;
   dept_name?: null | string;
-  dept_parent_id?: string | null;
+  dept_parent_id?: null | string;
 }
 
 export interface WorkflowUserTreeNode {
@@ -33,7 +33,9 @@ export function buildWorkflowUserTree(users: WorkflowUserOption[]) {
       };
       groups.set(deptKey, group);
     }
-    group.children!.push({
+    const children = group.children;
+    if (!children) throw new Error(`用户组节点缺少 children: ${deptKey}`);
+    children.push({
       key: `user:${user.username}`,
       value: user.username,
       title: user.nickname || user.username,

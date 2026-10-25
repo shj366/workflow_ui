@@ -4,12 +4,12 @@ import { ref } from 'vue';
 import { useVbenModal } from '@vben/common-ui';
 
 import { message } from 'antdv-next';
-import SnakerFlowDesigner from '#/plugins/workflow/components/SnakerFlowDesigner';
 
 import {
   getProcessDesignDetailApi,
   saveProcessDesignApi,
 } from '#/plugins/workflow/api/processDesign';
+import SnakerFlowDesigner from '#/plugins/workflow/components/SnakerFlowDesigner';
 
 import { taskFormOptions } from '../processTask/componentMap';
 import AssigneeInput from './snakerflow/assigneeInput.vue';
@@ -80,14 +80,14 @@ function cloneDefaultFlow() {
 }
 function normalizeDesignerGraph(
   jsonObject: Record<string, any> | undefined,
-  data: { name?: string; displayName?: string; type?: string },
+  data: { displayName?: string; name?: string; type?: string },
 ) {
   const hasGraph = Boolean(
     jsonObject &&
     Array.isArray(jsonObject.nodes) &&
     Array.isArray(jsonObject.edges),
   );
-  const graph = hasGraph ? jsonObject! : cloneDefaultFlow();
+  const graph = hasGraph && jsonObject ? jsonObject : cloneDefaultFlow();
   const nodes = (graph.nodes || []).map((node: any) => {
     if (!String(node.type || '').endsWith('task')) return node;
     const properties = node.properties || {};
@@ -109,12 +109,17 @@ function normalizeDesignerGraph(
       },
     };
   });
-  const graphType =
-    data.type != null && data.type !== ''
-      ? String(data.type).trim()
-      : hasGraph && graph.type != null && graph.type !== ''
-        ? String(graph.type).trim()
-        : '';
+  let graphType = '';
+  if (data.type !== undefined && data.type !== null && data.type !== '') {
+    graphType = String(data.type).trim();
+  } else if (
+    hasGraph &&
+    graph.type !== undefined &&
+    graph.type !== null &&
+    graph.type !== ''
+  ) {
+    graphType = String(graph.type).trim();
+  }
   return {
     ...graph,
     nodes,
@@ -289,9 +294,9 @@ defineExpose({
                     button-style="solid"
                     size="small"
                   >
-                    <a-radio-button :value="2" disabled
-                      >下拉选择</a-radio-button
-                    >
+                    <a-radio-button :value="2" disabled>
+                      下拉选择
+                    </a-radio-button>
                     <a-radio-button :value="1">文本输入</a-radio-button>
                   </a-radio-group>
                   <div style="margin-top: 8px">
@@ -341,9 +346,9 @@ defineExpose({
                     button-style="solid"
                     size="small"
                   >
-                    <a-radio-button :value="2" disabled
-                      >下拉选择</a-radio-button
-                    >
+                    <a-radio-button :value="2" disabled>
+                      下拉选择
+                    </a-radio-button>
                     <a-radio-button :value="1">文本输入</a-radio-button>
                   </a-radio-group>
                   <div style="margin-top: 8px">
@@ -380,9 +385,11 @@ defineExpose({
   width: 100%;
   height: 100%;
 }
+
 :global(.fd-drawer-root) {
   z-index: 2000 !important;
 }
+
 :global(.fd-modal-root) {
   z-index: 2100 !important;
 }

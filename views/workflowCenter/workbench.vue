@@ -15,9 +15,9 @@ import {
 } from '#/plugins/workflow/api/processTask';
 
 const emit = defineEmits<{
-  goto: [tab: 'todo' | 'done' | 'my_initiated' | 'cc'];
-  openTask: [task: ProcessTaskItem];
+  goto: [tab: 'cc' | 'done' | 'my_initiated' | 'todo'];
   openInstance: [instanceId: string];
+  openTask: [task: ProcessTaskItem];
 }>();
 
 const loading = ref(false);
@@ -34,7 +34,7 @@ const cards = reactive([
     badge: '优先处理',
     icon: 'ant-design:clock-circle-filled',
     tone: 'blue',
-    count: null as number | null,
+    count: null as null | number,
   },
   {
     id: 'unread-cc',
@@ -44,7 +44,7 @@ const cards = reactive([
     badge: '未读',
     icon: 'ant-design:bell-filled',
     tone: 'orange',
-    count: null as number | null,
+    count: null as null | number,
   },
   {
     id: 'active-mine',
@@ -54,7 +54,7 @@ const cards = reactive([
     badge: '跟进中',
     icon: 'ant-design:sync-outlined',
     tone: 'purple',
-    count: null as number | null,
+    count: null as null | number,
   },
   {
     id: 'completed-mine',
@@ -64,7 +64,7 @@ const cards = reactive([
     badge: '已完成',
     icon: 'ant-design:check-square-filled',
     tone: 'green',
-    count: null as number | null,
+    count: null as null | number,
   },
   {
     id: 'done',
@@ -74,7 +74,7 @@ const cards = reactive([
     badge: '历史记录',
     icon: 'ant-design:check-circle-filled',
     tone: 'cyan',
-    count: null as number | null,
+    count: null as null | number,
   },
   {
     id: 'cc',
@@ -84,7 +84,7 @@ const cards = reactive([
     badge: '知会',
     icon: 'ant-design:mail-filled',
     tone: 'pink',
-    count: null as number | null,
+    count: null as null | number,
   },
 ]);
 
@@ -117,12 +117,19 @@ async function reload() {
       ]);
     recentTasks.value = todo.items;
     recentDoneTasks.value = done.items;
-    cards[0]!.count = todo.total;
-    cards[1]!.count = unreadCc.total;
-    cards[2]!.count = activeMine.total;
-    cards[3]!.count = completedMine.total;
-    cards[4]!.count = done.total;
-    cards[5]!.count = cc.total;
+    const counts = [
+      todo.total,
+      unreadCc.total,
+      activeMine.total,
+      completedMine.total,
+      done.total,
+      cc.total,
+    ];
+    for (const [index, count] of counts.entries()) {
+      const card = cards[index];
+      if (!card) throw new Error(`工作台卡片配置缺失: ${index}`);
+      card.count = count;
+    }
   } catch (error) {
     loadError.value =
       error instanceof Error ? error.message : '工作台数据加载失败';
@@ -151,7 +158,8 @@ onMounted(() => void reload());
           v-for="card in cards"
           :key="card.id"
           hoverable
-          :class="['workbench-card', `workbench-card--${card.tone}`]"
+          class="workbench-card"
+          :class="[`workbench-card--${card.tone}`]"
           @click="emit('goto', card.route)"
         >
           <div class="workbench-card-topline">
@@ -204,13 +212,15 @@ onMounted(() => void reload());
                   type="primary"
                   size="small"
                   @click="emit('openTask', task)"
-                  >办理</a-button
                 >
+                  办理
+                </a-button>
                 <a-button
                   size="small"
                   @click="emit('openInstance', task.processInstanceId)"
-                  >详情</a-button
                 >
+                  详情
+                </a-button>
               </div>
             </div>
           </div>
@@ -247,8 +257,9 @@ onMounted(() => void reload());
                 <a-button
                   size="small"
                   @click="emit('openInstance', task.processInstanceId)"
-                  >详情</a-button
                 >
+                  详情
+                </a-button>
               </div>
             </div>
           </div>
@@ -262,8 +273,8 @@ onMounted(() => void reload());
 <style scoped>
 .workflow-workbench {
   height: 100%;
-  overflow: auto;
   padding: 16px;
+  overflow: auto;
   background: #f5f7fa;
 }
 
@@ -284,9 +295,9 @@ onMounted(() => void reload());
 .workbench-card {
   position: relative;
   overflow: hidden;
+  background: #fff;
   border: 1px solid #edf0f5;
   border-radius: 10px;
-  background: #fff;
   box-shadow: 0 2px 8px rgb(31 35 41 / 4%);
   transition:
     transform 0.2s ease,
@@ -300,11 +311,11 @@ onMounted(() => void reload());
   bottom: -42px;
   width: 118px;
   height: 118px;
-  border-radius: 50%;
-  background: var(--card-soft);
-  content: '';
-  opacity: 0.75;
   pointer-events: none;
+  content: '';
+  background: var(--card-soft);
+  border-radius: 50%;
+  opacity: 0.75;
 }
 
 .workbench-card:hover {
@@ -324,22 +335,27 @@ onMounted(() => void reload());
   --card-color: #1677ff;
   --card-soft: #e6f4ff;
 }
+
 .workbench-card--orange {
   --card-color: #fa8c16;
   --card-soft: #fff7e6;
 }
+
 .workbench-card--purple {
   --card-color: #722ed1;
   --card-soft: #f9f0ff;
 }
+
 .workbench-card--green {
   --card-color: #52c41a;
   --card-soft: #f6ffed;
 }
+
 .workbench-card--cyan {
   --card-color: #13c2c2;
   --card-soft: #e6fffb;
 }
+
 .workbench-card--pink {
   --card-color: #eb2f96;
   --card-soft: #fff0f6;
@@ -353,17 +369,17 @@ onMounted(() => void reload());
 
 .workbench-card-badge {
   padding: 3px 8px;
-  border-radius: 999px;
-  color: var(--card-color);
-  background: var(--card-soft);
   font-size: 11px;
   font-weight: 600;
   line-height: 1.2;
+  color: var(--card-color);
+  background: var(--card-soft);
+  border-radius: 999px;
 }
 
 .workbench-card-arrow {
-  color: #b7bdc8;
   font-size: 16px;
+  color: #b7bdc8;
   transition:
     color 0.2s ease,
     transform 0.2s ease;
@@ -376,42 +392,43 @@ onMounted(() => void reload());
 
 .workbench-card-main {
   display: flex;
-  align-items: center;
   gap: 7px;
+  align-items: center;
   margin-top: 7px;
 }
+
 .workbench-card-icon {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
   width: 24px;
   height: 24px;
-  flex-shrink: 0;
-  border-radius: 6px;
+  font-size: 14px;
   color: var(--card-color);
   background: var(--card-soft);
-  font-size: 14px;
+  border-radius: 6px;
 }
 
 .workbench-card-value {
-  color: #1f2937;
   font-size: 20px;
-  font-variant-numeric: tabular-nums;
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
   line-height: 1;
+  color: #1f2937;
 }
 
 .workbench-card-label {
   margin-top: 4px;
-  color: #303846;
   font-size: 12px;
   font-weight: 600;
+  color: #303846;
 }
 
 .workbench-card-description {
   margin-top: 1px;
-  color: #98a0ad;
   font-size: 11px;
+  color: #98a0ad;
 }
 
 .workbench-panel :deep(.ant-card-head) {
@@ -425,9 +442,9 @@ onMounted(() => void reload());
 
 .workbench-task {
   display: flex;
+  gap: 16px;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
   padding: 16px 20px;
   border-top: 1px solid #f0f0f0;
 }
@@ -438,16 +455,16 @@ onMounted(() => void reload());
 
 .workbench-task-title {
   overflow: hidden;
-  color: #1f2937;
-  font-weight: 500;
   text-overflow: ellipsis;
+  font-weight: 500;
+  color: #1f2937;
   white-space: nowrap;
 }
 
 .workbench-task-meta {
   margin-top: 6px;
-  color: #86909c;
   font-size: 12px;
+  color: #86909c;
 }
 
 .workbench-task-actions {
@@ -479,8 +496,8 @@ onMounted(() => void reload());
 
   .workbench-header,
   .workbench-task {
-    align-items: flex-start;
     flex-direction: column;
+    align-items: flex-start;
   }
 
   .workbench-task-actions {

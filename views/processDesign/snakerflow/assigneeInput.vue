@@ -6,8 +6,7 @@ import { buildWorkflowUserTree } from '#/plugins/workflow/utils/userTree';
 
 const props = defineProps<{ value?: string }>();
 const emit = defineEmits<{
-  (event: 'update:value', value: string): void;
-  (event: 'setAssigneeText', value: string): void;
+  (event: 'update:value' | 'setAssigneeText', value: string): void;
 }>();
 
 const loading = ref(false);
@@ -89,7 +88,7 @@ onMounted(() => void loadUsers());
     show-search
     tree-node-filter-prop="title"
     show-checked-strategy="SHOW_CHILD"
-    :max-tag-count="'responsive'"
+    max-tag-count="responsive"
     allow-clear
     placeholder="搜索并选择一个或多个审批人"
     style="width: 100%"

@@ -9,7 +9,7 @@ import type {
 
 import { reactive, ref } from 'vue';
 
-import { Modal, message } from 'antdv-next';
+import { message, Modal } from 'antdv-next';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import {

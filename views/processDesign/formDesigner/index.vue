@@ -153,8 +153,12 @@ function handleUpDown(index: number, direction: 'down' | 'up') {
   if (newIndex < 0 || newIndex >= schemas.value.length) return;
 
   const temp = schemas.value[index];
-  schemas.value[index] = schemas.value[newIndex]!;
-  schemas.value[newIndex] = temp!;
+  const replacement = schemas.value[newIndex];
+  if (!temp || !replacement) {
+    throw new Error('表单字段索引超出范围');
+  }
+  schemas.value[index] = replacement;
+  schemas.value[newIndex] = temp;
 }
 
 // 表单项配置抽屉确定事件

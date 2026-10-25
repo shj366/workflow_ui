@@ -23,12 +23,12 @@ export interface ProcessDesignItem {
   is_deployed: number;
   isDeployed?: number;
   jsonObject?: {
-    formSchemaJsonStr?: string;
     [key: string]: unknown;
+    formSchemaJsonStr?: string;
   };
   json_object?: {
-    formSchemaJsonStr?: string;
     [key: string]: unknown;
+    formSchemaJsonStr?: string;
   };
   remark?: string;
   create_time?: string;
@@ -95,7 +95,7 @@ export async function fetchProcessDesignPageApi(params: {
   name?: string;
   page: number;
   size: number;
-  type?: string | number;
+  type?: number | string;
 }) {
   const normalizedParams = {
     ...params,

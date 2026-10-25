@@ -14,7 +14,6 @@ import { useVbenDrawer } from '@vben/common-ui';
 import { IconifyIcon } from '@vben/icons';
 
 import { message } from 'antdv-next';
-import SnakerFlowDesigner from '#/plugins/workflow/components/SnakerFlowDesigner';
 
 import {
   fetchUserListApi,
@@ -26,6 +25,7 @@ import {
   completeProcessTaskApi,
   getTaskDetailApi,
 } from '#/plugins/workflow/api/processTask';
+import SnakerFlowDesigner from '#/plugins/workflow/components/SnakerFlowDesigner';
 
 import { taskFormComponentMap } from './componentMap';
 import AddCandidate from './taskForm/addCandidate.vue';

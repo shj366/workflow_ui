@@ -32,7 +32,7 @@ const designRef = ref();
 const formDesignerRef = ref();
 
 const isUpdate = ref(false);
-const currentRecordId = ref<string | number>();
+const currentRecordId = ref<number | string>();
 
 const formOptions: VbenFormProps = {
   collapsed: true,
