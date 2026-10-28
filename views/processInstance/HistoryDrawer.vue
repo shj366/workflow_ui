@@ -368,7 +368,7 @@ const recordTabItems = [
 
 const [Drawer, drawerApi] = useVbenDrawer({
   title: '流程详情',
-  class: 'w-1/2',
+  class: 'w-full md:w-1/2',
   onOpenChange: async (isOpen) => {
     if (isOpen) {
       const { instanceId } = drawerApi.getData();

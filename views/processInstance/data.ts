@@ -1,6 +1,32 @@
 import type { VbenFormProps } from '@vben/common-ui';
 import type { VxeGridProps } from '@vben/plugins/vxe-table';
 
+export const processStateOptions = [
+  { label: '进行中', value: 10 },
+  { label: '已完成', value: 20 },
+  { label: '已撤回', value: 30 },
+  { label: '强行中止', value: 40 },
+  { label: '挂起', value: 50 },
+  { label: '已废弃', value: 99 },
+];
+
+export const ccReadStateOptions = [
+  { label: '未读', value: 0 },
+  { label: '已读', value: 1 },
+];
+
+const processStateLabels = Object.fromEntries(
+  processStateOptions.map(({ label, value }) => [value, label]),
+);
+
+export function getProcessStateLabel(value?: number) {
+  return processStateLabels[value ?? -1] || String(value ?? '-');
+}
+
+export function getCcReadStateLabel(value?: number) {
+  return value === 1 ? '已读' : value === 0 ? '未读' : String(value ?? '-');
+}
+
 export const querySchema: VbenFormProps['schema'] = [
   {
     component: 'Input',
@@ -24,14 +50,7 @@ export const querySchema: VbenFormProps['schema'] = [
     label: '状态',
     componentProps: {
       placeholder: '请选择状态',
-      options: [
-        { label: '进行中', value: 10 },
-        { label: '已完成', value: 20 },
-        { label: '已撤回', value: 30 },
-        { label: '强行中止', value: 40 },
-        { label: '挂起', value: 50 },
-        { label: '已废弃', value: 99 },
-      ],
+      options: processStateOptions,
     },
   },
 ];
@@ -109,17 +128,7 @@ export const columns: VxeGridProps['columns'] = [
     field: 'state',
     title: '状态',
     width: 100,
-    formatter: ({ cellValue }) => {
-      const map: Record<number, string> = {
-        10: '进行中',
-        20: '已完成',
-        30: '已撤回',
-        40: '强行中止',
-        50: '挂起',
-        99: '已废弃',
-      };
-      return map[cellValue] || cellValue;
-    },
+    formatter: ({ cellValue }) => getProcessStateLabel(cellValue),
   },
   {
     field: 'action',
@@ -193,7 +202,7 @@ export const ccColumns: VxeGridProps['columns'] = [
     field: 'state',
     title: '阅读状态',
     width: 80,
-    formatter: ({ cellValue }) => (cellValue === 1 ? '已读' : '未读'),
+    formatter: ({ cellValue }) => getCcReadStateLabel(cellValue),
   },
   {
     field: 'instanceExt.u_realName',

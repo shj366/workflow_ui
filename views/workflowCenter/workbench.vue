@@ -451,6 +451,7 @@ onMounted(() => void reload());
 
 .workbench-task-main {
   min-width: 0;
+  width: 100%;
 }
 
 .workbench-task-title {
@@ -502,6 +503,12 @@ onMounted(() => void reload());
 
   .workbench-task-actions {
     width: 100%;
+    justify-content: flex-end;
+  }
+
+  .workbench-task-title {
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 }
 </style>

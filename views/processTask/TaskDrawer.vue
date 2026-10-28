@@ -445,7 +445,7 @@ const recordTabItems = [
 
 const [Drawer, drawerApi] = useVbenDrawer({
   title: '任务办理',
-  class: 'w-1/2',
+  class: 'w-full md:w-1/2',
   onOpenChange: async (isOpen) => {
     if (isOpen) {
       const { task } = drawerApi.getData();
@@ -639,7 +639,7 @@ defineExpose({
                       </a-upload>
                     </a-form-item>
                     <a-row :gutter="16">
-                      <a-col :span="6">
+                      <a-col :xs="24" :sm="12">
                         <a-form-item>
                           <a-checkbox
                             v-model:checked="formData.assignNextOperator"
@@ -648,7 +648,7 @@ defineExpose({
                           </a-checkbox>
                         </a-form-item>
                       </a-col>
-                      <a-col :span="6">
+                      <a-col :xs="24" :sm="12">
                         <a-form-item>
                           <a-checkbox v-model:checked="formData.isCc">
                             是否抄送

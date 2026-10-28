@@ -10,6 +10,7 @@ import { useRoute } from 'vue-router';
 import { Page } from '@vben/common-ui';
 import { IconifyIcon } from '@vben/icons';
 
+import { useMediaQuery } from '@vueuse/core';
 import { message } from 'antdv-next';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
@@ -25,6 +26,12 @@ import {
 } from '#/plugins/workflow/api/processTask';
 
 import HistoryDrawer from '../processInstance/HistoryDrawer.vue';
+import {
+  ccReadStateOptions,
+  getCcReadStateLabel,
+  getProcessStateLabel,
+  processStateOptions,
+} from '../processInstance/data';
 import TaskDrawer from '../processTask/TaskDrawer.vue';
 import Surrogate from '../processTask/taskForm/surrogate.vue';
 import { getColumns, getQuerySchema, TabType } from './data';
@@ -38,6 +45,18 @@ const getValidTab = (tab?: string): TabTypeValues =>
     : TabType.WORKBENCH;
 
 const activeTab = ref<TabTypeValues>(getValidTab(route.query.tab as string));
+const isMobile = useMediaQuery('(max-width: 767px)');
+const mobileRows = ref<any[]>([]);
+const mobileTotal = ref(0);
+const mobileLoading = ref(false);
+const mobileError = ref('');
+const mobileFiltersExpanded = ref(false);
+const mobileFilters = reactive({
+  taskName: '',
+  displayName: '',
+  businessNo: '',
+  state: undefined as number | undefined,
+});
 
 // Refs for drawers/modals
 const workbenchRef = ref();
@@ -146,6 +165,112 @@ const [Grid, gridApi] = useVbenVxeGrid({
   separator: { backgroundColor: '#ededed' },
 });
 
+async function loadMobilePage(page = 1) {
+  if (activeTab.value === TabType.WORKBENCH) return;
+
+  mobileLoading.value = true;
+  mobileError.value = '';
+  try {
+    const state = tabStates[activeTab.value];
+    const pageSize = state?.pagination.pageSize ?? 20;
+    const params = { page, size: pageSize };
+    let result;
+
+    switch (activeTab.value) {
+      case TabType.TODO: {
+        result = await fetchTodoTaskPageApi({
+          ...params,
+          taskName: mobileFilters.taskName,
+          displayName: mobileFilters.displayName,
+        });
+        break;
+      }
+      case TabType.DONE: {
+        result = await fetchDoneTaskPageApi({
+          ...params,
+          taskName: mobileFilters.taskName,
+          displayName: mobileFilters.displayName,
+        });
+        break;
+      }
+      case TabType.MY_INITIATED: {
+        result = await fetchMyProcessInstancePageApi({
+          ...params,
+          displayName: mobileFilters.displayName,
+          businessNo: mobileFilters.businessNo,
+          state: mobileFilters.state,
+        });
+        break;
+      }
+      case TabType.CC: {
+        result = await fetchCcProcessInstancePageApi({
+          ...params,
+          state: mobileFilters.state,
+        });
+        break;
+      }
+      default: {
+        throw new Error(`不支持的工作中心页签: ${activeTab.value}`);
+      }
+    }
+
+    mobileRows.value = result.items;
+    mobileTotal.value = result.total;
+    if (state) {
+      state.pagination.currentPage = page;
+      state.formValues = { ...mobileFilters };
+    }
+  } catch (error) {
+    mobileRows.value = [];
+    mobileTotal.value = 0;
+    mobileError.value =
+      error instanceof Error ? error.message : '工作列表加载失败';
+  } finally {
+    mobileLoading.value = false;
+  }
+}
+
+function applyMobileFilters() {
+  mobileFiltersExpanded.value = false;
+  void loadMobilePage(1);
+}
+
+function resetMobileFilters() {
+  mobileFilters.taskName = '';
+  mobileFilters.displayName = '';
+  mobileFilters.businessNo = '';
+  mobileFilters.state = undefined;
+  mobileFiltersExpanded.value = false;
+  void loadMobilePage(1);
+}
+
+function mobileTitle(row: any) {
+  return (
+    row.instanceExt?.autoGenTitle ||
+    row.ext?.autoGenTitle ||
+    row.displayName ||
+    row.taskName ||
+    row.businessNo ||
+    '未命名流程'
+  );
+}
+
+function mobileSummary(row: any) {
+  return row.instanceExt?.f_title || row.ext?.f_title || row.summary || '';
+}
+
+function mobileTime(value?: string) {
+  return value ? value.replace('T', ' ').slice(0, 16) : '-';
+}
+
+function refreshCurrentList() {
+  if (isMobile.value) {
+    void loadMobilePage(tabStates[activeTab.value]?.pagination.currentPage);
+  } else {
+    gridApi.query();
+  }
+}
+
 onMounted(() => {
   if (activeTab.value !== TabType.WORKBENCH)
     void handleTabChange(activeTab.value);
@@ -170,6 +295,23 @@ const handleTabChange = async (key: any) => {
     workbenchRef.value?.reload();
     return;
   }
+
+  if (isMobile.value) {
+    const cachedState = tabStates[newTab];
+    Object.assign(
+      mobileFilters,
+      {
+        taskName: '',
+        displayName: '',
+        businessNo: '',
+        state: undefined,
+      },
+      cachedState?.formValues,
+    );
+    await loadMobilePage(cachedState?.pagination.currentPage ?? 1);
+    return;
+  }
+
   // 1. Update Columns
   gridApi.grid.loadColumn(getColumns(newTab) || []);
 
@@ -242,7 +384,7 @@ async function handleWithdraw(row: any) {
   try {
     await withdrawProcessInstanceApi([row.id]);
     message.success('撤回成功');
-    gridApi.query();
+    refreshCurrentList();
   } catch {
     message.error('撤回失败');
   }
@@ -255,7 +397,7 @@ async function handleCcAction(row: any) {
       await markCcAsReadApi(row.id);
       // Ideally refresh the row or grid, but full refresh might be too heavy.
       // For now, we let it be or refresh.
-      gridApi.query();
+      refreshCurrentList();
     } catch (error) {
       console.error('标记已读失败', error);
     }
@@ -265,8 +407,18 @@ async function handleCcAction(row: any) {
 }
 
 function handleSuccess() {
-  gridApi.reload();
+  refreshCurrentList();
 }
+
+watch(isMobile, async (mobile) => {
+  if (activeTab.value === TabType.WORKBENCH) return;
+  if (mobile) {
+    await loadMobilePage(tabStates[activeTab.value]?.pagination.currentPage);
+    return;
+  }
+  await nextTick();
+  await handleTabChange(activeTab.value);
+});
 
 // Tab items for Ant Design Vue 4.x
 const tabItems = computed(() => [
@@ -331,6 +483,7 @@ const tabItems = computed(() => [
       <div class="">
         <!-- bg-card rounded-t-lg px-12 -->
         <a-tabs
+          class="workflow-center-tabs"
           v-model:active-key="activeTab"
           size="middle"
           @change="handleTabChange"
@@ -339,7 +492,9 @@ const tabItems = computed(() => [
           :items="tabItems"
         />
       </div>
-      <div class="workflow-center-grid flex-1 overflow-hidden rounded-tr-lg">
+      <div
+        class="workflow-center-grid min-h-0 flex-1 overflow-auto rounded-tr-lg"
+      >
         <Workbench
           v-if="activeTab === TabType.WORKBENCH"
           ref="workbenchRef"
@@ -348,7 +503,235 @@ const tabItems = computed(() => [
           @open-instance="handleWorkbenchInstance"
         />
         <Transition v-else name="workflow-center-fade">
-          <Grid>
+          <div v-if="isMobile" class="mobile-task-list">
+            <div class="mobile-filter-toolbar">
+              <a-button
+                :aria-expanded="mobileFiltersExpanded"
+                @click="mobileFiltersExpanded = !mobileFiltersExpanded"
+              >
+                <IconifyIcon icon="ant-design:filter-outlined" />
+                筛选
+              </a-button>
+              <span>{{ mobileTotal }} 条</span>
+            </div>
+            <a-form
+              v-if="mobileFiltersExpanded"
+              class="mobile-task-filters"
+              layout="vertical"
+            >
+              <a-form-item
+                v-if="activeTab === TabType.TODO || activeTab === TabType.DONE"
+                label="任务编码"
+              >
+                <a-input
+                  v-model:value="mobileFilters.taskName"
+                  placeholder="请输入任务编码"
+                  allow-clear
+                />
+              </a-form-item>
+              <a-form-item
+                v-if="activeTab === TabType.TODO || activeTab === TabType.DONE"
+                label="任务名称"
+              >
+                <a-input
+                  v-model:value="mobileFilters.displayName"
+                  placeholder="请输入任务名称"
+                  allow-clear
+                />
+              </a-form-item>
+              <a-form-item
+                v-if="activeTab === TabType.MY_INITIATED"
+                label="流程名称"
+              >
+                <a-input
+                  v-model:value="mobileFilters.displayName"
+                  placeholder="请输入流程名称"
+                  allow-clear
+                />
+              </a-form-item>
+              <a-form-item
+                v-if="activeTab === TabType.MY_INITIATED"
+                label="业务单号"
+              >
+                <a-input
+                  v-model:value="mobileFilters.businessNo"
+                  placeholder="请输入业务单号"
+                  allow-clear
+                />
+              </a-form-item>
+              <a-form-item
+                v-if="
+                  activeTab === TabType.MY_INITIATED || activeTab === TabType.CC
+                "
+                :label="activeTab === TabType.CC ? '阅读状态' : '流程状态'"
+              >
+                <a-select
+                  v-model:value="mobileFilters.state"
+                  allow-clear
+                  placeholder="全部状态"
+                  :options="
+                    activeTab === TabType.CC
+                      ? ccReadStateOptions
+                      : processStateOptions
+                  "
+                />
+              </a-form-item>
+              <div class="mobile-filter-actions">
+                <a-button type="primary" @click="applyMobileFilters"
+                  >查询</a-button
+                >
+                <a-button @click="resetMobileFilters">重置</a-button>
+              </div>
+            </a-form>
+
+            <a-alert
+              v-if="mobileError"
+              class="mb-3"
+              type="error"
+              :message="mobileError"
+              show-icon
+            />
+            <a-spin :spinning="mobileLoading">
+              <div v-if="mobileRows.length" class="mobile-task-cards">
+                <a-card
+                  v-for="row in mobileRows"
+                  :key="row.id"
+                  size="small"
+                  class="mobile-task-card"
+                >
+                  <div class="mobile-task-heading">
+                    <div class="mobile-task-title">{{ mobileTitle(row) }}</div>
+                    <a-tag
+                      v-if="activeTab === TabType.MY_INITIATED"
+                      color="blue"
+                    >
+                      {{ getProcessStateLabel(row.state) }}
+                    </a-tag>
+                    <a-tag
+                      v-else-if="activeTab === TabType.CC"
+                      :color="row.state === 0 ? 'orange' : 'default'"
+                    >
+                      {{ getCcReadStateLabel(row.state) }}
+                    </a-tag>
+                  </div>
+                  <div v-if="mobileSummary(row)" class="mobile-task-summary">
+                    {{ mobileSummary(row) }}
+                  </div>
+                  <div class="mobile-task-meta">
+                    <template
+                      v-if="
+                        activeTab === TabType.TODO || activeTab === TabType.DONE
+                      "
+                    >
+                      <span
+                        >当前节点：{{
+                          row.displayName || row.taskName || '-'
+                        }}</span
+                      >
+                      <span
+                        >发起人：{{ row.instanceExt?.u_realName || '-' }}</span
+                      >
+                      <span
+                        >发起时间：{{
+                          mobileTime(row.instanceCreateTime)
+                        }}</span
+                      >
+                      <span
+                        >{{
+                          activeTab === TabType.TODO ? '待办时间' : '完成时间'
+                        }}：{{
+                          mobileTime(
+                            activeTab === TabType.TODO
+                              ? row.createdTime
+                              : row.finishTime,
+                          )
+                        }}</span
+                      >
+                    </template>
+                    <template v-else-if="activeTab === TabType.MY_INITIATED">
+                      <span
+                        >流程：{{
+                          row.displayName || row.defineName || '-'
+                        }}</span
+                      >
+                      <span>业务单号：{{ row.businessNo || '-' }}</span>
+                      <span
+                        >发起时间：{{
+                          mobileTime(row.createdTime || row.createTime)
+                        }}</span
+                      >
+                    </template>
+                    <template v-else>
+                      <span
+                        >发起人：{{
+                          row.instanceExt?.u_realName || row.operator || '-'
+                        }}</span
+                      >
+                      <span
+                        >流程状态：{{
+                          getProcessStateLabel(row.processState)
+                        }}</span
+                      >
+                      <span
+                        >发起时间：{{
+                          mobileTime(row.instanceCreateTime)
+                        }}</span
+                      >
+                      <span>抄送时间：{{ mobileTime(row.createTime) }}</span>
+                    </template>
+                  </div>
+                  <div class="mobile-task-actions">
+                    <template v-if="activeTab === TabType.TODO">
+                      <a-button
+                        type="primary"
+                        @click="handleTodoAction('handle', row)"
+                        >办理</a-button
+                      >
+                      <a-button @click="handleTodoAction('surrogate', row)"
+                        >委托</a-button
+                      >
+                    </template>
+                    <a-button
+                      v-else-if="activeTab === TabType.DONE"
+                      @click="handleDoneAction(row)"
+                    >
+                      详情
+                    </a-button>
+                    <template v-else-if="activeTab === TabType.MY_INITIATED">
+                      <a-button @click="handleMyAction('detail', row)"
+                        >详情</a-button
+                      >
+                      <a-popconfirm
+                        v-if="row.state === 10"
+                        title="确定要撤回该流程吗？"
+                        @confirm="handleMyAction('withdraw', row)"
+                      >
+                        <a-button danger>撤回</a-button>
+                      </a-popconfirm>
+                    </template>
+                    <a-button v-else @click="handleCcAction(row)"
+                      >查看流程</a-button
+                    >
+                  </div>
+                </a-card>
+              </div>
+              <a-empty
+                v-else-if="!mobileError && !mobileLoading"
+                description="暂无记录"
+              />
+            </a-spin>
+            <a-pagination
+              v-if="mobileTotal > 0"
+              class="mobile-task-pagination"
+              :current="tabStates[activeTab]?.pagination.currentPage"
+              :page-size="tabStates[activeTab]?.pagination.pageSize"
+              :total="mobileTotal"
+              :show-size-changer="false"
+              :show-total="(total: number) => `共 ${total} 条`"
+              @change="loadMobilePage"
+            />
+          </div>
+          <Grid v-else>
             <template #action="{ row }">
               <!-- Todo Actions -->
               <template v-if="activeTab === TabType.TODO">
@@ -424,6 +807,34 @@ const tabItems = computed(() => [
   height: 0 !important;
 }
 
+@media (max-width: 767px) {
+  .workflow-center-tabs {
+    overflow: hidden;
+  }
+
+  :deep(.workflow-center-tabs > .ant-tabs-nav) {
+    margin-bottom: 0;
+  }
+
+  :deep(.workflow-center-tabs .ant-tabs-nav-wrap) {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  :deep(.workflow-center-tabs .ant-tabs-nav-wrap::-webkit-scrollbar) {
+    display: none;
+  }
+
+  :deep(.workflow-center-tabs .ant-tabs-tab) {
+    padding: 8px 10px;
+    white-space: nowrap;
+  }
+
+  :deep(.workflow-center-grid .vxe-toolbar) {
+    flex-wrap: wrap;
+  }
+}
+
 :deep(.workflow-center-grid .relative.rounded.py-3) {
   padding-bottom: 0.25rem !important;
 }
@@ -445,6 +856,110 @@ const tabItems = computed(() => [
 .workflow-center-fade-leave-to {
   opacity: 0;
   transform: translateY(4px);
+}
+
+.mobile-task-list {
+  padding: 12px;
+}
+
+.mobile-task-filters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 10px;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  background: var(--color-background, #fff);
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+}
+
+.mobile-filter-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.mobile-task-filters :deep(.ant-form-item) {
+  min-width: 0;
+  margin-bottom: 6px;
+}
+
+.mobile-task-filters :deep(.ant-form-item-label) {
+  padding-bottom: 2px;
+}
+
+.mobile-filter-actions {
+  grid-column: 1 / -1;
+}
+
+.mobile-filter-actions,
+.mobile-task-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mobile-task-cards {
+  display: grid;
+  gap: 10px;
+}
+
+.mobile-task-heading {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.mobile-task-title {
+  min-width: 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.mobile-task-summary {
+  display: -webkit-box;
+  margin-top: 4px;
+  color: #6b7280;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
+.mobile-task-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 3px 10px;
+  margin: 7px 0;
+  color: #6b7280;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.mobile-task-meta > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mobile-task-card :deep(.ant-card-body) {
+  padding: 10px 12px;
+}
+
+.mobile-task-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 16px;
 }
 
 /* 去掉 Tabs card 类型标签的圆角（边框后面单独控制） */

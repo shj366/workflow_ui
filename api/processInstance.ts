@@ -48,6 +48,7 @@ export async function startAndExecuteApi(data: StartAndExecuteRequest) {
 export interface ProcessInstancePageQuery {
   page: number;
   size: number;
+  displayName?: string;
   businessNo?: string;
   state?: number;
 }

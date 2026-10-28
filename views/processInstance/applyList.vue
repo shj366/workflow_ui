@@ -12,6 +12,7 @@ import StartProcess from '../processDefine/startProcess.vue';
 
 const dataSource = ref<ProcessDesignTypeGroup[]>([]);
 const startProcessRef = ref();
+const loadError = ref('');
 
 const handleClick = (item: ProcessDesignTypeGroup['items'][number]) => {
   startProcessRef.value?.setData({ id: item.processDefineId });
@@ -19,6 +20,7 @@ const handleClick = (item: ProcessDesignTypeGroup['items'][number]) => {
 };
 
 onMounted(async () => {
+  loadError.value = '';
   try {
     const data = await listProcessDesignByTypeApi();
     dataSource.value = (data || []).map((group) => {
@@ -35,12 +37,21 @@ onMounted(async () => {
     });
   } catch (error) {
     console.error(error);
+    loadError.value =
+      error instanceof Error ? error.message : '流程列表加载失败';
   }
 });
 </script>
 
 <template>
   <Page auto-content-height>
+    <a-alert
+      v-if="loadError"
+      class="mb-4"
+      type="error"
+      :message="loadError"
+      show-icon
+    />
     <template v-for="group in dataSource" :key="group.type">
       <a-card
         v-if="group.items.length > 0"
@@ -51,7 +62,7 @@ onMounted(async () => {
           <a-col
             v-for="item in group.items"
             :key="item.id"
-            :xs="12"
+            :xs="24"
             :sm="8"
             :md="6"
             :lg="4"
@@ -74,6 +85,7 @@ onMounted(async () => {
       </a-card>
     </template>
     <div
+      v-if="!loadError && dataSource.length === 0"
       style="
         display: flex;
         align-items: center;
@@ -92,7 +104,8 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 16px;
+  min-height: 112px;
+  padding: 12px 8px;
   cursor: pointer;
   border-radius: 8px;
   transition: all 0.3s;
@@ -121,5 +134,20 @@ onMounted(async () => {
   margin-top: 4px;
   font-size: 12px;
   color: #8c8c8c;
+}
+
+@media (max-width: 600px) {
+  :deep(.ant-card-head) {
+    min-height: 44px;
+    padding: 0 12px;
+  }
+
+  :deep(.ant-card-body) {
+    padding: 8px 12px;
+  }
+
+  .process-item {
+    min-height: 104px;
+  }
 }
 </style>

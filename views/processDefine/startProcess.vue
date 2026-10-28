@@ -176,7 +176,7 @@ const tabItems = [
 </script>
 
 <template>
-  <Drawer class="w-[60%]" :confirm-loading="loading">
+  <Drawer class="w-full md:w-[60%]" :confirm-loading="loading">
     <a-tabs v-model:active-key="activeKey" :items="tabItems">
       <template #contentRender="{ item }">
         <!-- 表单标签页 -->
