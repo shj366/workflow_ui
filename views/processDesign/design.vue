@@ -129,7 +129,6 @@ function normalizeDesignerGraph(
   };
 }
 const recordId = ref<number>(0);
-const assigneeConfigWay = ref(2);
 const assignmentHandlerConfigWay = ref(1); // 默认为文本输入
 const candidateUsersConfigWay = ref(2);
 const candidateGroupsConfigWay = ref(2);
@@ -265,26 +264,10 @@ defineExpose({
               </a-form>
             </template>
             <template #form-item-task-assignee="{ model, field }">
-              <a-form :label-col="{ flex: '120px' }" :model="model">
-                <a-form-item label="参与者" :colon="false">
-                  <a-radio-group
-                    v-model:value="assigneeConfigWay"
-                    button-style="solid"
-                    size="small"
-                  >
-                    <a-radio-button :value="2">下拉选择</a-radio-button>
-                    <a-radio-button :value="1">文本输入</a-radio-button>
-                  </a-radio-group>
-                  <div style="margin-top: 8px">
-                    <AssigneeInput
-                      v-if="assigneeConfigWay === 2"
-                      v-model:value="model[field]"
-                      @set-assignee-text="handleSetAssigneeText($event, model)"
-                    />
-                    <a-input v-else v-model:value="model[field]" />
-                  </div>
-                </a-form-item>
-              </a-form>
+              <AssigneeInput
+                v-model:value="model[field]"
+                @set-assignee-text="handleSetAssigneeText($event, model)"
+              />
             </template>
             <template #form-item-task-assignmentHandler="{ model, field }">
               <a-form :label-col="{ flex: '120px' }" :model="model">
