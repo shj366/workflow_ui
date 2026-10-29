@@ -5,8 +5,8 @@ import { markRaw } from 'vue';
 const taskFormComponentMap = new Map<string, Component>();
 export const taskFormOptions: Array<{ label: string; value: string }> = [];
 
-// Scan for *TaskForm.vue components relative to this file
-const modules = import.meta.glob('../../views/**/*TaskForm.vue', {
+// Match both `TaskForm.vue` and the existing `taskForm.vue` naming convention.
+const modules = import.meta.glob('../../views/**/*[Tt]askForm.vue', {
   eager: true,
 });
 

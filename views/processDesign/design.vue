@@ -11,7 +11,6 @@ import {
 } from '#/plugins/workflow/api/processDesign';
 import SnakerFlowDesigner from '#/plugins/workflow/components/SnakerFlowDesigner';
 
-import { taskFormOptions } from '../processTask/componentMap';
 import AssigneeInput from './snakerflow/assigneeInput.vue';
 import CandidateGroupsInput from './snakerflow/candidateGroupsInput.vue';
 
@@ -251,18 +250,6 @@ defineExpose({
             ]"
             v-bind="$attrs"
           >
-            <template #form-item-task-form="{ model, field }">
-              <a-form :label-col="{ flex: '120px' }" :model="model">
-                <a-form-item label="表单" :colon="false">
-                  <a-select
-                    v-model:value="model[field]"
-                    :options="taskFormOptions"
-                    :styles="{ popup: { root: { zIndex: 9999 } } }"
-                    allow-clear
-                  />
-                </a-form-item>
-              </a-form>
-            </template>
             <template #form-item-task-assignee="{ model, field }">
               <AssigneeInput
                 v-model:value="model[field]"

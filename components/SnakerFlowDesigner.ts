@@ -5,6 +5,7 @@ import { defineComponent, h } from 'vue';
 import FlowDesigner from 'mldong-flow-designer-plus';
 
 import { wfFormOptions } from '../views/processDefine/componentMap';
+import { taskFormOptions } from '../views/processTask/componentMap';
 import AssigneeInput from '../views/processDesign/snakerflow/assigneeInput.vue';
 
 import 'mldong-flow-designer-plus/lib/style.css';
@@ -27,8 +28,12 @@ const taskForm = {
     {
       name: 'form',
       label: '表单',
-      component: 'Input',
-      componentProps: { placeholder: '请输入表单标识' },
+      component: 'Select',
+      componentProps: {
+        options: taskFormOptions,
+        placeholder: '请选择表单',
+        allowClear: true,
+      },
     },
     { name: 'assignee', label: '参与人', render: () => AssigneeInput },
     {
