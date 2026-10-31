@@ -30,6 +30,7 @@ import FormDesigner from './formDesigner/index.vue';
 
 const designRef = ref();
 const formDesignerRef = ref();
+const designingId = ref<number | null>(null);
 
 const isUpdate = ref(false);
 const currentRecordId = ref<number | string>();
@@ -153,9 +154,16 @@ function handleEdit(row: ProcessDesignItem) {
   modalApi.setData(row).open();
 }
 
-function handleDesign(row: ProcessDesignItem) {
-  designRef.value?.setData({ id: row.id });
-  designRef.value?.open();
+async function handleDesign(row: ProcessDesignItem) {
+  designingId.value = row.id;
+  try {
+    await designRef.value?.open(row.id);
+  } catch (error) {
+    console.error(error);
+    message.error('流程详情加载失败');
+  } finally {
+    designingId.value = null;
+  }
 }
 
 async function handleDeploy(row: ProcessDesignItem) {
@@ -292,10 +300,16 @@ function handleMoreAction(key: string, row: ProcessDesignItem) {
 
       <template #action="{ row }">
         <a
-          style="margin-right: 8px; color: #1677ff; cursor: pointer"
+          :style="{
+            marginRight: '8px',
+            color: '#1677ff',
+            cursor: designingId === row.id ? 'wait' : 'pointer',
+            pointerEvents: designingId === row.id ? 'none' : 'auto',
+          }"
           @click="handleDesign(row)"
         >
-          设计
+          <a-spin v-if="designingId === row.id" size="small" />
+          <template v-else>设计</template>
         </a>
         <a-dropdown
           :menu="{

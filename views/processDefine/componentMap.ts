@@ -2,6 +2,8 @@ import type { Component } from 'vue';
 
 import { markRaw } from 'vue';
 
+import CodisOpportunityRegistrationStartForm from '#/plugins/codis/views/opportunity-registration/OpportunityRegistrationWorkflowStartForm.vue';
+
 import DefaultWfForm from './wfForm/defaultWfForm.vue';
 import SchemaWfForm from './wfForm/schemaWfForm.vue';
 
@@ -17,5 +19,10 @@ function registerForm(value: string, label: string, component: Component) {
 // 内置表单显式注册，避免 glob 在不同构建模式下无法展开，导致下拉框为空。
 registerForm('DefaultWfForm', '默认表单', DefaultWfForm);
 registerForm('SchemaWfForm', '元数据表单', SchemaWfForm);
+registerForm(
+  'CodisOpportunityRegistrationStartForm',
+  '商机报备启动表单',
+  CodisOpportunityRegistrationStartForm,
+);
 
 export { componentMap };

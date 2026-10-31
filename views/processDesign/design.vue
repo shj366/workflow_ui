@@ -201,23 +201,17 @@ const [Modal, modalApi] = useVbenModal({
   title: '流程设计',
   fullscreen: true,
   footer: false,
-  onOpenChange: async (isOpen) => {
-    if (!isOpen) return;
-    const { id } = modalApi.getData();
-    recordId.value = id;
-    designerMode.value = 'dingtalk';
-    flowData.value = {};
-    try {
-      const data = await getProcessDesignDetailApi(id);
-      flowData.value = normalizeDesignerGraph(data.jsonObject, data);
-    } catch (error) {
-      console.error(error);
-      flowData.value = cloneDefaultFlow();
-    }
-  },
 });
+async function open(id: number) {
+  recordId.value = id;
+  designerMode.value = 'dingtalk';
+  flowData.value = {};
+  const data = await getProcessDesignDetailApi(id);
+  flowData.value = normalizeDesignerGraph(data.jsonObject, data);
+  modalApi.open();
+}
 defineExpose({
-  open: modalApi.open,
+  open,
   setData: modalApi.setData,
 });
 </script>

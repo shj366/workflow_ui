@@ -1,18 +1,5 @@
 import { requestClient } from '#/api/request';
 
-export interface ProcessDesignVersion {
-  id: string;
-  name: string;
-  displayName?: string;
-  type?: string;
-  state?: number;
-  version?: number;
-  createdTime?: string;
-  created_time?: string;
-  remark?: string;
-  isVersion?: boolean;
-}
-
 export interface ProcessDesignItem {
   id: number;
   name: string;
@@ -35,11 +22,6 @@ export interface ProcessDesignItem {
   update_time?: string;
   createTime?: string;
   updateTime?: string;
-  state?: number;
-  version?: number;
-  isVersion?: boolean;
-  children?: ProcessDesignVersion[];
-  versionCount?: number;
 }
 
 export interface ProcessDesignCreate {
@@ -154,7 +136,7 @@ export async function saveProcessDesignApi(data: ProcessDesignSaveDesign) {
  * 删除流程设计
  */
 export async function deleteProcessDesignApi(ids: number[]) {
-  return requestClient.post('/api/v1/wf/processDesign/delete', { ids });
+  return requestClient.post('/api/v1/wf/processDesign/delete', ids);
 }
 
 /**

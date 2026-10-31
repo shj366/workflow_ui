@@ -10,6 +10,102 @@ import AssigneeInput from '../views/processDesign/snakerflow/assigneeInput.vue';
 
 import 'mldong-flow-designer-plus/lib/style.css';
 
+const CANVAS_TASK_NODE_SIZE = { width: 185, height: 35 } as const;
+
+function getExpressionLabel(expression: string) {
+  const equality = expression.match(/^\s*[\w.]+\s*==\s*'([^']+)'\s*$/);
+  if (equality) {
+    return equality[1];
+  }
+
+  const inequality = expression.match(/^\s*[\w.]+\s*!=\s*'([^']+)'\s*$/);
+  if (inequality) {
+    return `非${inequality[1]}`;
+  }
+
+  if (/\s+in\s*\(/.test(expression)) {
+    const values = [...expression.matchAll(/'([^']+)'/g)].map(
+      (match) => match[1],
+    );
+    if (values.length > 0) {
+      return values.join('、');
+    }
+  }
+
+  return expression;
+}
+
+function normalizeFlowData(value: Record<string, any>, mode: string) {
+  const nodes = Array.isArray(value.nodes)
+    ? value.nodes.map((node: Record<string, any>) => {
+        if (mode !== 'canvas' || node.type !== 'snaker:task') {
+          return node;
+        }
+
+        if (
+          node.properties?.width === CANVAS_TASK_NODE_SIZE.width &&
+          node.properties?.height === CANVAS_TASK_NODE_SIZE.height
+        ) {
+          return node;
+        }
+
+        return {
+          ...node,
+          properties: {
+            ...node.properties,
+            ...CANVAS_TASK_NODE_SIZE,
+          },
+        };
+      })
+    : value.nodes;
+  const edges = Array.isArray(value.edges)
+    ? value.edges.map((edge: Record<string, any>) => {
+        const type =
+          edge.type === 'snaker:line' ? 'snaker:transition' : edge.type;
+        const expression =
+          typeof edge.properties?.expr === 'string'
+            ? edge.properties.expr.trim()
+            : '';
+        const label =
+          typeof edge.text?.value === 'string' ? edge.text.value.trim() : '';
+        const expressionLabel = expression
+          ? getExpressionLabel(expression)
+          : '';
+
+        if (type === edge.type && (label || !expressionLabel)) {
+          return edge;
+        }
+
+        return {
+          ...edge,
+          type,
+          ...(label || !expressionLabel
+            ? {}
+            : { text: { ...edge.text, value: expressionLabel } }),
+        };
+      })
+    : value.edges;
+  const hasNodeChanges =
+    Array.isArray(nodes) &&
+    nodes.some(
+      (node: Record<string, unknown>, index: number) =>
+        node !== value.nodes[index],
+    );
+  const hasEdgeChanges =
+    Array.isArray(edges) &&
+    edges.some(
+      (edge: Record<string, unknown>, index: number) =>
+        edge !== value.edges[index],
+    );
+  return hasNodeChanges || hasEdgeChanges
+    ? {
+        ...value,
+        ...(hasNodeChanges ? { nodes } : {}),
+        ...(hasEdgeChanges ? { edges } : {}),
+      }
+    : value;
+}
+
 const taskForm = {
   labelWidth: '120px',
   formItems: [
@@ -130,10 +226,19 @@ const SnakerFlowDesigner = defineComponent({
         FlowDesigner as Component,
         {
           ...attrs,
-          value: props.modelValue,
+          value: normalizeFlowData(
+            props.modelValue as Record<string, any>,
+            props.mode,
+          ),
           mode: props.mode,
           typePrefix: 'snaker:',
           defaultEdgeType: 'snaker:transition',
+          dagreOptions: {
+            rankdir: 'LR',
+            nodesep: 80,
+            ranksep: 120,
+            isDefaultAnchor: true,
+          },
           initDndPanel: true,
           processForm,
           dndPanel: [{ type: 'snaker:task', label: '审批人', form: taskForm }],

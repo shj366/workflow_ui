@@ -24,6 +24,7 @@ const formKey = ref<Component | null>(null);
 const processVersion = ref<null | number>(null);
 const wfFormRef = ref<null | {
   getFieldsValue?: () => Record<string, unknown>;
+  submit?: () => Promise<boolean | void>;
   validate?: () => Promise<unknown>;
 }>(null);
 
@@ -110,10 +111,10 @@ const [Drawer, drawerApi] = useVbenDrawer({
       const instanceUrl = (jsonObject['process-instanceUrl'] ||
         jsonObject.instanceUrl) as string | undefined;
       const fallbackKey = 'DefaultWfForm';
-      if (jsonObject.formSchemaJsonStr) {
-        formKey.value = SchemaWfForm;
-      } else if (instanceUrl && wfFormComponentMap.has(instanceUrl)) {
+      if (instanceUrl && wfFormComponentMap.has(instanceUrl)) {
         formKey.value = wfFormComponentMap.get(instanceUrl) ?? null;
+      } else if (jsonObject.formSchemaJsonStr) {
+        formKey.value = SchemaWfForm;
       } else {
         formKey.value = wfFormComponentMap.get(fallbackKey) ?? null;
       }
@@ -127,6 +128,18 @@ const [Drawer, drawerApi] = useVbenDrawer({
 async function handleSubmit() {
   loading.value = true;
   try {
+    if (wfFormRef.value?.submit) {
+      const submitted = await wfFormRef.value.submit();
+      if (submitted === false) return;
+      message.success('发起流程成功');
+      drawerApi.close();
+      router.push({
+        path: '/workflow/center',
+        query: { tab: 'my_initiated' },
+      });
+      return;
+    }
+
     // 动态元数据表单暴露 validate；先校验必填字段，再读取提交值。
     if (wfFormRef.value?.validate) {
       await wfFormRef.value.validate();
