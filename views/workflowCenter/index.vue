@@ -98,6 +98,8 @@ const formOptions: VbenFormProps = {
 };
 
 const gridOptions: VxeTableGridOptions = {
+  id: 'plugin-workflow-views-workflowCenter-index-vue',
+  customConfig: { storage: true },
   rowConfig: {
     keyField: 'id',
   },

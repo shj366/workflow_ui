@@ -62,6 +62,8 @@ const formOptions: VbenFormProps = {
 };
 
 const gridOptions = reactive<VxeTableGridOptions<ProcessDefineItem>>({
+  id: 'plugin-workflow-views-processDefine-index-vue',
+  customConfig: { storage: true },
   rowConfig: {
     keyField: 'id',
   },

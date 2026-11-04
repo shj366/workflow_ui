@@ -28,6 +28,8 @@ const formOptions: VbenFormProps = {
 };
 
 const gridOptions = reactive<VxeTableGridOptions<ProcessTaskItem>>({
+  id: 'plugin-workflow-views-processTask-todo-vue',
+  customConfig: { storage: true },
   rowConfig: {
     keyField: 'id',
   },
