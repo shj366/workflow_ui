@@ -24,7 +24,7 @@ const formKey = ref<Component | null>(null);
 const processVersion = ref<null | number>(null);
 const wfFormRef = ref<null | {
   getFieldsValue?: () => Record<string, unknown>;
-  submit?: () => Promise<boolean | void>;
+  submit?: () => Promise<boolean | undefined>;
   validate?: () => Promise<unknown>;
 }>(null);
 

@@ -24,7 +24,9 @@ export function getProcessStateLabel(value?: number) {
 }
 
 export function getCcReadStateLabel(value?: number) {
-  return value === 1 ? '已读' : value === 0 ? '未读' : String(value ?? '-');
+  if (value === 1) return '已读';
+  if (value === 0) return '未读';
+  return String(value ?? '-');
 }
 
 export const querySchema: VbenFormProps['schema'] = [
