@@ -25,13 +25,13 @@ import {
   fetchTodoTaskPageApi,
 } from '#/plugins/workflow/api/processTask';
 
-import HistoryDrawer from '../processInstance/HistoryDrawer.vue';
 import {
   ccReadStateOptions,
   getCcReadStateLabel,
   getProcessStateLabel,
   processStateOptions,
 } from '../processInstance/data';
+import HistoryDrawer from '../processInstance/HistoryDrawer.vue';
 import TaskDrawer from '../processTask/TaskDrawer.vue';
 import Surrogate from '../processTask/taskForm/surrogate.vue';
 import { getColumns, getQuerySchema, TabType } from './data';
@@ -179,11 +179,10 @@ async function loadMobilePage(page = 1) {
     let result;
 
     switch (activeTab.value) {
-      case TabType.TODO: {
-        result = await fetchTodoTaskPageApi({
+      case TabType.CC: {
+        result = await fetchCcProcessInstancePageApi({
           ...params,
-          taskName: mobileFilters.taskName,
-          displayName: mobileFilters.displayName,
+          state: mobileFilters.state,
         });
         break;
       }
@@ -204,10 +203,11 @@ async function loadMobilePage(page = 1) {
         });
         break;
       }
-      case TabType.CC: {
-        result = await fetchCcProcessInstancePageApi({
+      case TabType.TODO: {
+        result = await fetchTodoTaskPageApi({
           ...params,
-          state: mobileFilters.state,
+          taskName: mobileFilters.taskName,
+          displayName: mobileFilters.displayName,
         });
         break;
       }

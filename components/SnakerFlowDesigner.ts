@@ -5,8 +5,8 @@ import { defineComponent, h } from 'vue';
 import FlowDesigner from 'mldong-flow-designer-plus';
 
 import { wfFormOptions } from '../views/processDefine/componentMap';
-import { taskFormOptions } from '../views/processTask/componentMap';
 import AssigneeInput from '../views/processDesign/snakerflow/assigneeInput.vue';
+import { taskFormOptions } from '../views/processTask/componentMap';
 
 import 'mldong-flow-designer-plus/lib/style.css';
 

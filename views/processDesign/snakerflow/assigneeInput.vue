@@ -6,7 +6,7 @@ import { buildWorkflowUserTree } from '#/plugins/workflow/utils/userTree';
 
 const props = defineProps<{ value?: string }>();
 const emit = defineEmits<{
-  (event: 'update:value' | 'setAssigneeText', value: string): void;
+  (event: 'setAssigneeText' | 'update:value', value: string): void;
 }>();
 
 const loading = ref(false);

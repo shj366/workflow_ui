@@ -30,7 +30,7 @@ import FormDesigner from './formDesigner/index.vue';
 
 const designRef = ref();
 const formDesignerRef = ref();
-const designingId = ref<number | null>(null);
+const designingId = ref<null | number>(null);
 
 const isUpdate = ref(false);
 const currentRecordId = ref<number | string>();
