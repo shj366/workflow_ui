@@ -868,8 +868,8 @@ const tabItems = computed(() => [
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0 10px;
-  margin-bottom: 12px;
   padding: 10px 12px;
+  margin-bottom: 12px;
   background: var(--color-background, #fff);
   border: 1px solid #e5e7eb;
   border-radius: 6px;
@@ -880,8 +880,8 @@ const tabItems = computed(() => [
   align-items: center;
   justify-content: space-between;
   margin-bottom: 10px;
-  color: #6b7280;
   font-size: 12px;
+  color: #6b7280;
 }
 
 .mobile-task-filters :deep(.ant-form-item) {
@@ -917,23 +917,23 @@ const tabItems = computed(() => [
 }
 
 .mobile-task-title {
+  display: -webkit-box;
   min-width: 0;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
   font-weight: 600;
   overflow-wrap: anywhere;
-  display: -webkit-box;
-  overflow: hidden;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
 }
 
 .mobile-task-summary {
   display: -webkit-box;
   margin-top: 4px;
-  color: #6b7280;
   overflow: hidden;
+  -webkit-line-clamp: 1;
+  color: #6b7280;
   overflow-wrap: anywhere;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 1;
 }
 
 .mobile-task-meta {
@@ -941,8 +941,8 @@ const tabItems = computed(() => [
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 3px 10px;
   margin: 7px 0;
-  color: #6b7280;
   font-size: 12px;
+  color: #6b7280;
   overflow-wrap: anywhere;
 }
 
