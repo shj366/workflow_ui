@@ -23,7 +23,7 @@ const props = defineProps<{
 // 文件上传配置
 const accessStore = useAccessStore();
 const API_BASE_URL = import.meta.env.VITE_GLOB_API_URL;
-const uploadAction = `${API_BASE_URL}/api/v1/rustfs/storage/upload`;
+const uploadAction = `${API_BASE_URL}/api/v1/s3/objects/upload`;
 const uploadHeaders = computed(() => ({
   Authorization: `Bearer ${accessStore.accessToken}`,
 }));
